@@ -1,0 +1,2807 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>hi-5 Culture Quest · 관리자</title>
+
+<style>
+/* hi-5 Culture Quest 관리자 — 미니멀 단색 톤 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css');
+
+:root {
+  /* 5색 팔레트 */
+  --bg:      #F4F6F8;
+  --surface: #FFFFFF;
+  --border:  #E2E5EB;
+  --text:    #1F2937;
+  --muted:   #6B7280;
+
+  /* 액센트 */
+  --bar:        #6B8AAD;  /* 차트/바 기본 */
+  --bar-soft:   #D6E0EC;
+  --accent:     #00853F;  /* 재이용 (확정/타이틀 그린) */
+  --accent-soft:#E6F3EC;
+  --blue:       #4A6FA5;  /* 리더 메시지 액센트 */
+  --blue-soft:  #EAF1F9;
+  --warm:       #B26A3E;  /* 우리 메시지 액센트 */
+  --warm-soft:  #FAF0E8;
+  --amber:      #C28A1E;  /* 보너스 틱 */
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  --sh-1: 0 1px 2px rgba(17, 24, 39, .04);
+  --sh-2: 0 4px 16px rgba(17, 24, 39, .08);
+
+  --f-body: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+button { font-family: inherit; cursor: pointer; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+p { margin: 0; }
+ol, ul { margin: 0; padding: 0; list-style: none; }
+input, select { font-family: inherit; }
+
+/* ===== Layout ===== */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app-body { display: flex; flex: 1; min-height: 0; }
+.app-main { flex: 1; padding: 24px 32px 80px; overflow: auto; min-width: 0; }
+[data-density="compact"] .app-main { padding: 16px 22px 60px; }
+
+/* ===== Header ===== */
+.ah-header {
+  display: flex; align-items: center; gap: 24px;
+  padding: 14px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+}
+.ah-brand { display: flex; align-items: center; gap: 12px; min-width: 260px; flex-shrink: 0; }
+.ah-logo-img {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  background: transparent;
+}
+.ah-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--text); letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.ah-sub {
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+  white-space: nowrap;
+}
+
+.ah-filters { display: flex; gap: 10px; align-items: flex-end; flex: 1; }
+.ah-filter { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+.ah-filter.disabled { opacity: 0.5; }
+.ah-filter-label {
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+}
+.ah-filter select, .ah-role select {
+  appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 32px 8px 12px;
+  font-size: 13px; color: var(--text); font-weight: 500;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%236B7280' d='M2 4l4 4 4-4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ah-filter select:hover, .ah-role select:hover { border-color: var(--muted); }
+.ah-filter select:focus, .ah-role select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+
+.ah-clear {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 12px;
+  color: var(--muted); font-size: 12px; font-weight: 600;
+}
+.ah-clear:hover { background: var(--bg); color: var(--text); }
+
+.ah-right { display: flex; align-items: flex-end; gap: 16px; }
+.ah-role { display: flex; flex-direction: column; gap: 4px; }
+.ah-role label {
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+}
+.ah-role select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.ah-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px 4px 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+}
+.ah-avatar {
+  width: 30px; height: 30px;
+  background: var(--text);
+  color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px;
+}
+.ah-user-name { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.ah-user-sub { font-size: 10.5px; color: var(--muted); }
+
+/* ===== Tabs ===== */
+.ah-tabs {
+  display: flex; gap: 0;
+  background: var(--surface);
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 65px; z-index: 49;
+}
+.ah-tab {
+  background: transparent; border: none;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 8px;
+  color: var(--muted); font-size: 13.5px; font-weight: 600;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.ah-tab:hover { color: var(--text); }
+.ah-tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 700; }
+.ah-tab-icon { font-size: 15px; }
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 280px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 22px 18px 80px;
+  overflow: auto;
+}
+.scope-crumb {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  font-size: 12px; color: var(--muted);
+  background: var(--bg);
+  padding: 8px 12px; border-radius: var(--r-sm);
+  margin-bottom: 18px;
+}
+.scope-crumb .sep { color: var(--border); }
+.scope-crumb .current { color: var(--text); font-weight: 700; }
+
+.sb-section { margin-bottom: 22px; }
+.sb-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.sb-section h3 {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.sb-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sb-stats > div {
+  background: var(--bg);
+  padding: 10px 12px; border-radius: var(--r-sm);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.sb-k { font-size: 10px; color: var(--muted); font-weight: 600; }
+.sb-v { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.1; }
+
+.sb-spotlight {
+  margin-top: 10px;
+  background: var(--blue-soft);
+  padding: 12px; border-radius: var(--r-sm);
+  border: 1px solid var(--blue);
+  border-color: rgba(74, 111, 165, 0.25);
+}
+.sb-spot-label { font-size: 10px; color: var(--blue); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.sb-spot-name { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+.sb-spot-team { font-size: 11px; color: var(--muted); margin-top: 2px; padding-left: 30px; }
+
+.sb-jump {
+  width: 100%; background: transparent; border: 1px solid transparent;
+  text-align: left; padding: 8px 10px; border-radius: var(--r-sm);
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 2px;
+}
+.sb-jump:hover { background: var(--bg); }
+.sb-jump.active { background: var(--blue-soft); border-color: var(--blue); }
+.sb-jump-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; }
+.sb-jump-top span { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-jump-top b { color: var(--text); font-weight: 700; font-size: 12px; }
+.sb-jump-top .cnt { font-size: 10.5px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+.sb-jump .arrow { color: var(--muted); font-size: 10px; }
+
+.sb-legend { display: flex; flex-direction: column; gap: 7px; font-size: 11.5px; color: var(--text); }
+.sb-legend > div { display: flex; align-items: center; gap: 8px; }
+.sb-legend .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+
+.sb-bar-row { display: grid; grid-template-columns: 1fr 70px 32px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.sb-bar-label { font-size: 12px; color: var(--text); }
+.sb-bar-val { font-size: 12px; color: var(--muted); text-align: right; font-weight: 600; }
+
+.sb-sender { display: flex; flex-direction: column; gap: 4px; }
+.sb-sender li {
+  display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: center;
+  font-size: 12px; padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-sender li:last-child { border-bottom: none; }
+.sb-sender-rank { color: var(--muted); font-weight: 700; }
+.sb-sender-name { font-weight: 600; }
+.sb-sender-team { color: var(--muted); font-size: 10.5px; }
+.sb-sender b { font-weight: 700; color: var(--text); }
+
+.sb-alert { display: flex; flex-wrap: wrap; gap: 4px; }
+.sb-alert-chip {
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 4px 9px; border-radius: var(--r-pill);
+  font-size: 11px; color: var(--text);
+}
+
+.sb-date-row {
+  display: flex; justify-content: space-between;
+  padding: 7px 4px; font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-date-row b { color: var(--text); font-weight: 700; }
+
+/* ===== Nav Rail ===== */
+.nav-rail {
+  width: 88px; flex-shrink: 0;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 16px 8px;
+}
+.rail-btn {
+  background: transparent; border: none;
+  padding: 14px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border-radius: var(--r-sm); color: var(--muted);
+  margin-bottom: 4px;
+}
+.rail-btn:hover { background: var(--bg); color: var(--text); }
+.rail-btn.active { background: var(--bg); color: var(--text); font-weight: 700; }
+.rail-icon { font-size: 20px; }
+.rail-label { font-size: 11px; font-weight: 600; }
+.nav-side .ah-tabs { display: none; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.card-head h2 {
+  font-size: 15px; font-weight: 700; color: var(--text);
+}
+.card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.card-body.padded { padding: 18px 20px; }
+[data-density="compact"] .card-head { padding: 12px 16px 10px; }
+[data-density="compact"] .card-body.padded { padding: 12px 16px; }
+
+/* ===== Stat Tile ===== */
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  border-left: 3px solid var(--bar);
+}
+.stat-tile.warm { border-left-color: var(--warm); }
+.stat-tile.green { border-left-color: var(--accent); }
+.stat-tile.amber { border-left-color: var(--amber); }
+.stat-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ===== Avatar ===== */
+.avatar {
+  border-radius: 50%; background: var(--bg); color: var(--text);
+  border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; flex-shrink: 0;
+}
+.person-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.pi-name { font-weight: 700; }
+.pi-title { color: var(--muted); font-size: 11px; font-weight: 500; }
+.pi-team { color: var(--muted); font-size: 11px; }
+
+/* ===== Bars ===== */
+.bar-track { background: var(--bg); border-radius: var(--r-pill); overflow: hidden; width: 100%; }
+.bar-fill { height: 100%; border-radius: var(--r-pill); background: var(--bar); transition: width 0.35s; }
+
+/* ===== Pill ===== */
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--bg); color: var(--text);
+  font-size: 11px; font-weight: 600;
+  border: 1px solid var(--border);
+}
+.pill.solid { background: var(--text); color: white; border-color: var(--text); }
+.pill.accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+
+/* ===== Rank list ===== */
+.rank-list { display: flex; flex-direction: column; gap: 4px; }
+.rank-row {
+  display: grid;
+  grid-template-columns: 32px 32px 1fr 140px auto;
+  gap: 14px; align-items: center;
+  padding: 10px 8px;
+  border-radius: var(--r-sm);
+  transition: background 0.15s;
+}
+.rank-list.compact .rank-row { grid-template-columns: 28px 28px 1fr auto; padding: 6px 6px; gap: 10px; }
+.rank-row:hover { background: var(--bg); }
+.rank-row.clickable { cursor: pointer; }
+.rank-pos {
+  font-size: 14px; font-weight: 700; text-align: center; color: var(--bar);
+}
+.rank-pos .medal { font-size: 18px; }
+.rank-info { min-width: 0; }
+.rank-name { font-weight: 700; font-size: 13px; color: var(--text); }
+.rank-title { color: var(--muted); font-size: 11px; font-weight: 500; margin-left: 4px; }
+.rank-team { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.rank-bar { min-width: 110px; }
+.rank-total {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  text-align: right; min-width: 70px; line-height: 1;
+}
+.rank-total span { font-size: 10px; color: var(--muted); margin-left: 3px; font-weight: 600; }
+
+/* ===== Sticker mix inline ===== */
+.sticker-mix { display: flex; gap: 3px; flex-wrap: wrap; max-width: 200px; }
+.sticker-pill {
+  background: var(--bg);
+  padding: 2px 6px; border-radius: var(--r-pill);
+  font-size: 11px; display: inline-flex; align-items: center; gap: 3px;
+  border: 1px solid var(--border);
+}
+.sticker-pill b { font-weight: 700; color: var(--text); }
+
+/* ===== Segmented ===== */
+.seg {
+  display: inline-flex; background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 2px;
+}
+.seg-btn {
+  background: transparent; border: none;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  font-size: 12px; color: var(--muted); font-weight: 600;
+  white-space: nowrap;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
+
+/* ===== Dashboard ===== */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; grid-auto-flow: dense; }
+.dash-grid > .card.span-full { grid-column: 1 / -1; }
+
+/* Org bar chart */
+.orgchart {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.orgchart-level {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.orgchart-level-label {
+  font-size: 11px; color: var(--muted); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.orgchart-level-label small { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.org-bar-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 80px;
+  gap: 14px; align-items: center;
+  padding: 4px 0;
+}
+.org-bar-label { font-size: 12.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.org-bar-track { background: var(--bg); border-radius: 3px; height: 14px; overflow: hidden; position: relative; }
+.org-bar-fill { height: 100%; background: var(--bar); border-radius: 3px; transition: width 0.35s; }
+.org-bar-value { font-size: 13px; font-weight: 700; text-align: right; color: var(--text); }
+.org-bar-value span { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+
+/* ===== Org Tree (조직별 평균 누적 포인트) ===== */
+.org-tree-card-body { padding: 0 !important; }
+.org-tree-controls {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-wrap: wrap;
+}
+.org-tree-search {
+  position: relative; flex: 1; max-width: 360px;
+}
+.org-tree-search input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px 8px 34px;
+  font-size: 12.5px;
+  outline: none;
+}
+.org-tree-search input:focus { border-color: var(--blue); }
+.org-tree-search::before {
+  content: ""; position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%236B7280' stroke-width='2'><circle cx='6' cy='6' r='4.5'/><line x1='9.5' y1='9.5' x2='12.5' y2='12.5'/></svg>") no-repeat center;
+}
+.org-tree-legend { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+.org-tree-legend .leg-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+.org-tree-2col {
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+.org-tree-col {
+  border-right: 1px solid var(--border);
+}
+.org-tree-col:last-child { border-right: none; }
+.org-tree-col-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.org-tree-col-head h4 { font-size: 13px; font-weight: 700; color: var(--text); }
+.org-tree-col-head small { font-size: 11px; color: var(--muted); font-weight: 500; }
+.org-tree-col-body { padding: 6px 0 14px; max-height: 540px; overflow: auto; }
+
+.org-node {
+  display: grid;
+  grid-template-columns: 16px 1fr auto auto auto;
+  gap: 10px; align-items: center;
+  padding: 8px 18px 8px 0;
+  cursor: pointer;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border);
+}
+.org-node:last-child { border-bottom: none; }
+.org-node:hover { background: var(--bg); }
+.org-node.leaf { cursor: default; }
+.org-node-toggle {
+  text-align: center; color: var(--muted); font-size: 10px;
+  user-select: none;
+}
+.org-node.leaf .org-node-toggle { color: var(--border); }
+.org-node-name { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.org-node.depth-0 .org-node-name { font-weight: 700; }
+.org-node.depth-1 .org-node-name { font-weight: 600; color: var(--text); }
+.org-node.depth-2 .org-node-name { font-weight: 500; color: var(--muted); }
+.org-node-count {
+  font-size: 11px; color: var(--muted); font-weight: 500;
+  min-width: 44px; text-align: right;
+}
+.org-node-indicator {
+  width: 60px; height: 6px;
+  background: var(--bar-soft); border-radius: 3px; overflow: hidden;
+}
+.org-node-indicator-fill {
+  height: 100%; border-radius: 3px;
+}
+.org-node-avg {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  text-align: right; min-width: 70px;
+}
+.org-node-avg span { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+
+.org-node.empty .org-node-avg { color: var(--muted); font-weight: 500; }
+.org-node.empty .org-node-indicator-fill { display: none; }
+
+/* depth indent */
+.org-node.depth-1 { padding-left: 24px; background: var(--surface); }
+.org-node.depth-2 { padding-left: 48px; background: var(--surface); }
+
+/* ===== Sidebar HQ list — show avg P ===== */
+.sb-hq-row {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; background: transparent; border: 1px solid transparent;
+  text-align: left; padding: 8px 10px; border-radius: var(--r-sm);
+  margin-bottom: 2px; gap: 8px;
+}
+.sb-hq-row:hover { background: var(--bg); }
+.sb-hq-row.active { background: var(--blue-soft); border-color: var(--blue); }
+.sb-hq-row-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
+.sb-hq-name { font-size: 12.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-hq-meta { font-size: 10.5px; color: var(--muted); font-weight: 500; }
+.sb-hq-avg { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+.sb-hq-avg span { font-size: 9.5px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+
+/* ===== Talk ===== */
+.talk-grid { display: flex; flex-direction: column; gap: 16px; }
+.talk-list { display: flex; flex-direction: column; gap: 12px; }
+.talk-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  border-left: 3px solid var(--blue);
+}
+.talk-meta { display: flex; gap: 10px; align-items: center; font-size: 11.5px; color: var(--muted); margin-bottom: 10px; flex-wrap: wrap; }
+.talk-team { font-weight: 700; color: var(--text); }
+.talk-date { margin-left: auto; }
+.talk-author { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ta-name { font-weight: 700; font-size: 13px; color: var(--text); }
+.ta-title { color: var(--muted); font-weight: 500; font-size: 11px; margin-left: 4px; }
+.ta-team { font-size: 11px; color: var(--muted); }
+.talk-title {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin-bottom: 6px; line-height: 1.3;
+}
+.talk-body { font-size: 13.5px; color: var(--text); line-height: 1.7; }
+.talk-foot { display: flex; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.talk-foot b { color: var(--text); font-weight: 700; }
+.talk-comments {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.talk-comment {
+  font-size: 12.5px;
+  color: var(--text);
+  padding: 6px 10px;
+  background: var(--bg);
+  border-radius: var(--r-sm);
+}
+.anon-msg {
+  font-size: 13px; color: var(--text); line-height: 1.7;
+  padding: 12px 14px; background: var(--warm-soft);
+  border-left: 3px solid var(--warm);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  margin-bottom: 8px;
+}
+.anon-meta { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; }
+.anon-meta b { color: var(--text); font-weight: 700; }
+.anon-comments {
+  margin-top: 8px; padding-left: 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.anon-comment {
+  font-size: 12.5px; color: var(--text);
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid var(--border);
+}
+
+.action-section {
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.action-section-head {
+  background: var(--bg); padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.action-section-head h4 { font-size: 13px; font-weight: 700; color: var(--text); }
+.action-section-head .badge {
+  background: var(--blue); color: white;
+  padding: 2px 8px; border-radius: var(--r-pill);
+  font-size: 10px; font-weight: 700;
+}
+.action-section-body { padding: 14px; }
+
+/* ===== Play ===== */
+.play-grid { display: flex; flex-direction: column; gap: 16px; }
+.team-stickers { display: flex; flex-direction: column; gap: 4px; }
+.ts-row, .person-sticker-row {
+  display: grid;
+  grid-template-columns: 32px 32px 1fr 140px 60px auto;
+  gap: 14px; align-items: center;
+  padding: 8px 8px;
+  border-radius: var(--r-sm);
+  border-bottom: 1px solid var(--border);
+}
+.ts-row { grid-template-columns: 1fr 140px 60px 1.2fr; }
+.ts-row:last-child, .person-sticker-row:last-child { border-bottom: none; }
+.ts-team { font-weight: 700; font-size: 13px; color: var(--text); }
+.ts-count, .ps-count { text-align: right; font-size: 14px; font-weight: 700; color: var(--text); }
+.ts-count span, .ps-count span { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+.ts-breakdown { display: flex; flex-wrap: wrap; gap: 4px; }
+.ts-chip {
+  background: var(--bg); padding: 3px 8px; border-radius: var(--r-pill);
+  font-size: 11px; color: var(--text);
+  border: 1px solid var(--border);
+}
+.person-sticker-row .rank-pos { text-align: center; }
+
+.person-team-group { margin-bottom: 22px; }
+.person-team-group:last-child { margin-bottom: 0; }
+.person-team-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 8px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.person-team-head h4 { font-size: 13px; font-weight: 700; color: var(--text); }
+.person-team-head span { font-size: 11px; color: var(--muted); }
+
+/* ===== Rule ===== */
+.rule-grid { display: flex; flex-direction: column; gap: 16px; }
+.rule-team-block {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+.rule-team-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rule-team-head h3 {
+  font-size: 15px; font-weight: 700; color: var(--text);
+}
+.rule-team-head .meta { font-size: 11.5px; color: var(--muted); }
+.rule-team-body { padding: 16px 18px; }
+
+.rule-step-label {
+  display: inline-block;
+  background: var(--blue); color: white;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.rule-step-head h4 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rule-step-head p { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+
+.candidates-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.candidate-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  background: var(--surface);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.candidate-card:hover { border-color: var(--muted); }
+.candidate-card.active { border-color: var(--text); background: var(--bg); }
+.candidate-card.final { border-color: var(--accent); background: var(--accent-soft); }
+.cand-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.cand-label {
+  background: var(--blue); color: white;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  font-size: 10.5px; font-weight: 700;
+}
+.cand-card.final .cand-label { background: var(--accent); }
+.cand-likes {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--bg); border: 1px solid var(--border);
+  font-size: 11px; font-weight: 700; color: var(--text);
+}
+.cand-date { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.cand-body { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 8px; }
+.cand-author { font-size: 11px; color: var(--muted); }
+.cand-final-tag {
+  position: absolute; top: -10px; right: 12px;
+  background: var(--accent); color: white;
+  padding: 3px 12px; border-radius: var(--r-pill);
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.action-list {
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: 320px; overflow-y: auto;
+  padding-right: 8px;
+}
+.action-list::-webkit-scrollbar { width: 8px; }
+.action-list::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+.action-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.action-list::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+.action-item {
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  background: var(--surface);
+}
+.action-item.final {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.action-item.final-tag {
+  display: inline-block;
+  background: var(--accent); color: white;
+  padding: 2px 8px; border-radius: var(--r-pill);
+  font-size: 10px; font-weight: 700; margin-right: 8px;
+}
+.ai-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ai-rank {
+  background: var(--bg); color: var(--text);
+  padding: 2px 8px; border-radius: var(--r-pill);
+  font-size: 10.5px; font-weight: 700; border: 1px solid var(--border);
+}
+.ai-body { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 10px; }
+.ai-foot {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  font-size: 11.5px; color: var(--muted);
+  padding-top: 8px; border-top: 1px dashed var(--border);
+}
+.ai-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: var(--r-pill);
+  background: var(--bg); border: 1px solid var(--border);
+  font-size: 11px; color: var(--text); font-weight: 600;
+}
+.ai-likes {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+  font-weight: 700; color: var(--text); font-size: 12px;
+}
+
+.final-summary {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.final-summary h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.final-summary-card {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.fs-rule { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.fs-action { font-size: 13px; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.fs-foot { display: flex; gap: 12px; font-size: 11.5px; color: var(--muted); }
+.fs-foot b { color: var(--text); }
+
+/* ===== Gallery ===== */
+.gallery-wrap { display: flex; flex-direction: column; gap: 16px; }
+.gallery-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--text); color: white; border: 1px solid var(--text);
+  padding: 9px 16px; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 700;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary { background: var(--blue); border-color: var(--blue); }
+.btn-secondary {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border);
+  padding: 9px 14px; border-radius: var(--r-sm);
+  font-size: 12.5px; font-weight: 600;
+}
+.btn-secondary:hover { background: var(--bg); }
+
+.gallery-group { margin-bottom: 22px; }
+.gallery-group:last-child { margin-bottom: 0; }
+.gg-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 8px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.gg-head h4 { font-size: 14px; font-weight: 700; color: var(--text); }
+.gg-head span { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.gallery-item {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.gallery-item:hover { box-shadow: var(--sh-2); }
+.gallery-item.checked {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--text) inset;
+}
+.gi-thumb {
+  aspect-ratio: 4/3;
+  background: var(--bg);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.gi-check {
+  position: absolute; top: 8px; left: 8px;
+  background: white; border-radius: var(--r-sm);
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+}
+.gi-check input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--text); }
+.gi-mock {
+  display: flex; flex-direction: column; align-items: center;
+  color: var(--muted); font-weight: 600; font-size: 13px;
+}
+.gi-mock small { font-size: 11px; opacity: 0.85; margin-top: 4px; }
+.gi-meta { padding: 10px 12px; }
+.gi-team { font-size: 12px; font-weight: 700; color: var(--text); }
+.gi-rule { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.gi-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 10px; color: var(--muted);
+}
+.gi-foot span { display: flex; align-items: center; gap: 4px; }
+
+.empty {
+  padding: 60px 20px; text-align: center;
+  color: var(--muted); font-size: 13px;
+}
+
+/* ===== Employee search & detail ===== */
+.search-bar-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.search-bar {
+  position: relative; width: 100%; max-width: 420px;
+}
+.search-bar input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 14px 10px 38px;
+  font-size: 13px; color: var(--text);
+  outline: none;
+}
+.search-bar input:focus { border-color: var(--text); }
+.search-bar::before {
+  content: ""; position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%236B7280' stroke-width='2'><circle cx='7' cy='7' r='5'/><line x1='11' y1='11' x2='14' y2='14'/></svg>") no-repeat center;
+}
+.search-results {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); box-shadow: var(--sh-2);
+  max-height: 320px; overflow: auto; z-index: 60;
+}
+.search-result {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: var(--bg); }
+.sr-name { font-weight: 700; font-size: 13px; color: var(--text); }
+.sr-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.sr-pts { margin-left: auto; font-weight: 700; color: var(--text); font-size: 14px; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(17, 24, 39, 0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 24px;
+}
+.modal {
+  background: var(--surface); border-radius: var(--r-lg);
+  width: 100%; max-width: 880px; max-height: 88vh;
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: var(--sh-2);
+  border: 1px solid var(--border);
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-close {
+  background: var(--surface); border: 1px solid var(--border);
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: 14px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: var(--bg); color: var(--text); }
+.modal-person { display: flex; align-items: center; gap: 14px; }
+.modal-person .avatar { width: 48px; height: 48px; font-size: 18px; }
+.mp-name { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.mp-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.modal-body { padding: 20px 22px; overflow: auto; }
+
+.detail-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+
+.detail-section { margin-bottom: 22px; }
+.detail-section h4 {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  margin-bottom: 10px;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.detail-section h4 small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.log-list { display: flex; flex-direction: column; gap: 2px; max-height: 280px; overflow: auto; padding-right: 4px; border: 1px solid var(--border); border-radius: var(--r-sm); }
+.log-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px; align-items: center;
+  padding: 8px 12px;
+  font-size: 12.5px;
+}
+.log-row:nth-child(odd) { background: var(--bg); }
+.log-date { color: var(--muted); font-size: 12px; }
+.log-text { color: var(--text); }
+.log-pt { color: var(--text); font-weight: 700; }
+
+.streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 320px; }
+.streak-cell {
+  aspect-ratio: 1; border-radius: var(--r-sm);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--muted); font-weight: 600;
+}
+.streak-cell.done { background: var(--blue); color: white; }
+.streak-cell.bonus { box-shadow: inset 0 0 0 2px var(--accent); }
+
+.keyword-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.keyword-chip {
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 11px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 600;
+}
+.keyword-chip b { font-weight: 700; margin-left: 4px; }
+
+.tweak-help { font-size: 11px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+@media (max-width: 1280px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .dash-grid > .card.span-full { grid-column: 1; }
+  .detail-kpi { grid-template-columns: repeat(2, 1fr); }
+  .candidates-row { grid-template-columns: 1fr; }
+  .org-tree-2col { grid-template-columns: 1fr; }
+  .org-tree-col { border-right: none; border-bottom: 1px solid var(--border); }
+  .org-tree-col:last-child { border-bottom: none; }
+}
+@media (max-width: 1100px) {
+  .ah-sub { display: none; }
+  .ah-brand { min-width: 0; }
+  .ah-tab { padding: 12px 12px; font-size: 12.5px; }
+  .ah-filter { min-width: 130px; }
+}
+
+</style>
+
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+// hi-5 Culture Quest 관리자 mock data
+window.MOCK = (() => {
+  // 본부/사업부 → 실/센터/담당 → 팀/현장
+  const orgs = {
+    "대표이사실":         { "비서실":         ["비서팀"] },
+    "토목사업본부":       {
+      "토목1센터":   ["메트로현장", "도로1현장", "도로2현장"],
+      "토목2센터":   ["교량현장", "터널현장"],
+      "토목기술담당": ["토목설계팀", "토목견적팀"],
+    },
+    "건축주택사업본부":   { "주택1센터":     ["분당현장", "광교현장", "송도현장"] },
+    "플랜트사업본부":     { "플랜트1팀":     ["여수현장", "울산현장"] },
+    "NewEnergy사업본부":  { "신재생에너지팀": ["풍력1현장"] },
+    "안전품질본부":       { "안전관리실":    ["안전관리팀"] },
+    "개발사업부":         { "개발실":        ["개발기획팀"] },
+    "글로벌사업부":       { "해외사업실":    ["해외사업팀"] },
+    "기술연구원":         { "기술연구실":    ["기술연구팀"] },
+    "PI본부":             { "PI추진실":      ["PI팀"] },
+    "재경본부":           { "재무실":        ["재무회계팀", "자금팀"] },
+    "경영지원본부":       { "인사실":        ["인사기획팀", "인재개발팀", "노무복지팀"] },
+    "전략기획사업부":     { "전략실":        ["경영전략팀", "ESG팀"] },
+    "감사실":             { "감사실":        ["감사팀"] },
+    "GBC개발사업단":      {
+      "GBC개발1실": ["GBC1팀", "GBC2팀"],
+      "GBC개발2실": ["GBC3팀", "GBC4팀"],
+    },
+  };
+
+  const roles = [
+    { key: "ops",     label: "운영팀 (전사관리)",     scope: "all" },
+    { key: "leader1", label: "리더 1",                       scope: "본부", target: "경영지원본부" },
+    { key: "leader2", label: "리더 2",                       scope: "실",   target: "인사실", parent: "경영지원본부" },
+    { key: "leader3", label: "리더 3",                       scope: "팀",   target: "인사기획팀" },
+  ];
+
+  // 직원
+  const people = [
+    { id: "p01", name: "김현대", title: "책임매니저",   team: "인사기획팀",   dept2: "인사실",     dept1: "경영지원본부", role: "팀장" },
+    { id: "p02", name: "박서연", title: "선임매니저",   team: "인사기획팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p03", name: "이준호", title: "매니저",       team: "인사기획팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p04", name: "정유진", title: "사원",         team: "인사기획팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p05", name: "최민서", title: "책임매니저",   team: "인재개발팀",   dept2: "인사실",     dept1: "경영지원본부", role: "팀장" },
+    { id: "p06", name: "한지우", title: "매니저",       team: "인재개발팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p07", name: "윤소영", title: "선임매니저",   team: "인재개발팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p08", name: "조성훈", title: "책임매니저",   team: "노무복지팀",   dept2: "인사실",     dept1: "경영지원본부", role: "팀장" },
+    { id: "p09", name: "임재현", title: "매니저",       team: "노무복지팀",   dept2: "인사실",     dept1: "경영지원본부" },
+    { id: "p10", name: "강예린", title: "책임매니저",   team: "재무회계팀",   dept2: "재무실",     dept1: "재경본부",     role: "팀장" },
+    { id: "p11", name: "오태현", title: "선임매니저",   team: "재무회계팀",   dept2: "재무실",     dept1: "재경본부" },
+    { id: "p12", name: "신혜원", title: "매니저",       team: "재무회계팀",   dept2: "재무실",     dept1: "재경본부" },
+    { id: "p13", name: "장도윤", title: "책임매니저",   team: "자금팀",       dept2: "재무실",     dept1: "재경본부",     role: "팀장" },
+    { id: "p14", name: "배수민", title: "수석",         team: "경영전략팀",   dept2: "전략실",     dept1: "전략기획사업부", role: "팀장" },
+    { id: "p15", name: "류시현", title: "책임매니저",   team: "경영전략팀",   dept2: "전략실",     dept1: "전략기획사업부" },
+    { id: "p16", name: "노아인", title: "책임매니저",   team: "ESG팀",        dept2: "전략실",     dept1: "전략기획사업부", role: "팀장" },
+    { id: "p17", name: "정민수", title: "현장소장",     team: "메트로현장",   dept2: "토목1센터",  dept1: "토목사업본부", role: "팀장" },
+    { id: "p18", name: "황진우", title: "공무팀장",     team: "메트로현장",   dept2: "토목1센터",  dept1: "토목사업본부" },
+    { id: "p19", name: "송기태", title: "공사과장",     team: "메트로현장",   dept2: "토목1센터",  dept1: "토목사업본부" },
+    { id: "p20", name: "권유빈", title: "안전관리자",   team: "메트로현장",   dept2: "토목1센터",  dept1: "토목사업본부" },
+    { id: "p21", name: "이태경", title: "현장소장",     team: "도로1현장",   dept2: "토목1센터",  dept1: "토목사업본부", role: "팀장" },
+    { id: "p22", name: "박재훈", title: "공사과장",     team: "도로1현장",   dept2: "토목1센터",  dept1: "토목사업본부" },
+    { id: "p23", name: "김도현", title: "현장소장",     team: "도로2현장",   dept2: "토목1센터",  dept1: "토목사업본부", role: "팀장" },
+    { id: "p24", name: "문지환", title: "현장소장",     team: "교량현장",     dept2: "토목2센터",  dept1: "토목사업본부", role: "팀장" },
+    { id: "p25", name: "백승호", title: "공무팀장",     team: "교량현장",     dept2: "토목2센터",  dept1: "토목사업본부" },
+    { id: "p26", name: "전우진", title: "현장소장",     team: "터널현장",     dept2: "토목2센터",  dept1: "토목사업본부", role: "팀장" },
+    { id: "p27", name: "양태우", title: "현장소장",     team: "분당현장",     dept2: "주택1센터",  dept1: "건축주택사업본부", role: "팀장" },
+    { id: "p28", name: "고나경", title: "현장소장",     team: "광교현장",     dept2: "주택1센터",  dept1: "건축주택사업본부", role: "팀장" },
+    { id: "p29", name: "서지훈", title: "현장소장",     team: "송도현장",     dept2: "주택1센터",  dept1: "건축주택사업본부", role: "팀장" },
+    { id: "p30", name: "한도경", title: "공사부장",     team: "여수현장",     dept2: "플랜트1팀",  dept1: "플랜트사업본부", role: "팀장" },
+    { id: "p31", name: "이상혁", title: "공무팀장",     team: "여수현장",     dept2: "플랜트1팀",  dept1: "플랜트사업본부" },
+    { id: "p32", name: "주민혁", title: "현장소장",     team: "GBC1팀",      dept2: "GBC개발1실", dept1: "GBC개발사업단", role: "팀장" },
+  ];
+
+  // 시그널 스티커 10종 (메인 페이지 동일)
+  const stickerTypes = [
+    { key: "freq",     nm: "같은 주파수",     desc: "우리 잘 통하는 것 같아요",                cat: "통", emoji: "📡" },
+    { key: "wifi",     nm: "정보 와이파이",   desc: "늘 신속한 정보(알짜소식) 고마워요",       cat: "통", emoji: "📶" },
+    { key: "popper",   nm: "의견 폭죽",       desc: "작은 아이디어도 아낌없이 나눠줘서 도움돼요", cat: "통", emoji: "🎆" },
+    { key: "dish",     nm: "근거 맛집",       desc: "맛깔나는 데이터로 단번에 설득 완료!",     cat: "통", emoji: "🍽" },
+    { key: "puzzle",   nm: "퍼즐박사",        desc: "여러 정보를 모아 큰 그림을 잘 그려요",    cat: "통", emoji: "🧩" },
+    { key: "guardian", nm: "든든 수호신",     desc: "함께 일할 때 든든해요",                   cat: "인", emoji: "🛡" },
+    { key: "arrow",    nm: "팩트 명사수",     desc: "맞는 말만 쏙쏙! 핵심을 짚어줘요",         cat: "인", emoji: "🎯" },
+    { key: "bubble",   nm: "따뜻한 말풍선",   desc: "내 얘기 잘 들어줘서 고마워요",            cat: "인", emoji: "💬" },
+    { key: "pills",    nm: "리액션 비타민",   desc: "당신의 리액션 덕분에 일할 맛이 나요!",    cat: "인", emoji: "💊" },
+    { key: "bulb",     nm: "사각지대 솔루션", desc: "다른 관점 덕에 업무의 빈칸을 채웠어요",  cat: "인", emoji: "💡" },
+  ];
+
+  // 스티커 발급
+  const stickers = [];
+  const push = (to, from, type, n) => {
+    for (let i = 0; i < n; i++) stickers.push({ to, from, type, date: `2026-05-${10 + (i % 10)}` });
+  };
+  push("p01", "p02", "guardian", 12); push("p01", "p03", "arrow", 8); push("p01", "p04", "bubble", 6);
+  push("p02", "p04", "bubble", 14); push("p02", "p03", "pills", 7); push("p02", "p01", "freq", 4);
+  push("p03", "p02", "wifi", 9); push("p03", "p01", "puzzle", 5);
+  push("p04", "p02", "bubble", 18); push("p04", "p01", "guardian", 6); push("p04", "p03", "pills", 8);
+  push("p05", "p06", "guardian", 14); push("p05", "p07", "arrow", 10);
+  push("p06", "p07", "pills", 12); push("p06", "p05", "puzzle", 5);
+  push("p07", "p06", "bubble", 16); push("p07", "p05", "guardian", 8);
+  push("p08", "p09", "guardian", 9); push("p09", "p08", "bubble", 7);
+  push("p10", "p11", "arrow", 10); push("p10", "p12", "puzzle", 6);
+  push("p11", "p12", "dish", 18); push("p11", "p10", "guardian", 11);
+  push("p12", "p11", "bubble", 16); push("p12", "p10", "pills", 9);
+  push("p13", "p10", "freq", 4);
+  push("p14", "p15", "puzzle", 7); push("p15", "p14", "popper", 5);
+  push("p16", "p14", "bulb", 6);
+  push("p17", "p20", "guardian", 22); push("p17", "p18", "arrow", 12); push("p17", "p19", "freq", 8);
+  push("p18", "p19", "pills", 14); push("p18", "p17", "guardian", 9);
+  push("p19", "p18", "wifi", 11); push("p19", "p20", "bubble", 7);
+  push("p20", "p17", "guardian", 25); push("p20", "p18", "arrow", 18); push("p20", "p19", "bulb", 9);
+  push("p21", "p22", "puzzle", 11); push("p22", "p21", "guardian", 10);
+  push("p23", "p21", "arrow", 6);
+  push("p24", "p25", "wifi", 15); push("p24", "p25", "guardian", 8);
+  push("p25", "p24", "popper", 11);
+  push("p26", "p24", "bubble", 5);
+  push("p27", "p28", "freq", 7); push("p28", "p27", "popper", 6); push("p29", "p27", "bulb", 5);
+  push("p30", "p31", "freq", 6); push("p32", "p27", "bubble", 4);
+
+  // Talk
+  // - 리더 메시지: 작성자 정보 노출
+  // - 우리(팀원) 메시지: 익명. 카테고리 = "행동 지향점 1" or "행동 지향점 2"
+  const talks = [
+    // ────── 리더 메시지 (작성자 노출) ──────
+    { id: "t01", team: "인사기획팀", author: "p01", kind: "리더", date: "2026-05-18",
+      title: "이번주 우리 팀에 감사한 점",
+      body: "지난주 인재개발팀과 합동 워크숍 준비하느라 모두 야근이 잦았어요. 묵묵히 자기 몫 이상을 해준 우리 팀에게 진심으로 감사합니다. 이번 주는 좀 일찍 들어갑시다.",
+      likes: 12,
+      comments: [
+        { body: "팀장님이 먼저 챙겨주셔서 가능했어요. 감사합니다." },
+        { body: "이번주는 칼퇴 약속이에요!" },
+        { body: "워크숍 PPT 누가 다 만들었는지 보고 깜짝 놀랐습니다." },
+      ],
+    },
+    { id: "t04", team: "인재개발팀", author: "p05", kind: "리더", date: "2026-05-17",
+      title: "신입사원 OJT 마무리 소감",
+      body: "한 분 한 분 진심으로 신입사원을 챙겨주신 우리 팀에 박수를 보냅니다. 본인 업무도 바쁜데 멘토링까지 정성껏 해주셨어요.",
+      likes: 15,
+      comments: [
+        { body: "감사합니다 팀장님. 더 잘 해드리지 못해 아쉬워요." },
+        { body: "신입사원분들이 잘 따라와 주셔서요." },
+      ],
+    },
+    { id: "t05", team: "재무회계팀", author: "p10", kind: "리더", date: "2026-05-19",
+      title: "분기 결산 수고하셨습니다",
+      body: "이번 1분기 결산은 역대급으로 빠르게 마감했네요. 정말 고생 많으셨습니다. 회식 빨리 잡읍시다.",
+      likes: 11,
+      comments: [
+        { body: "회식 좋아요." },
+        { body: "다음 분기는 더 매끄럽게 해볼게요." },
+      ],
+    },
+    { id: "t07", team: "메트로현장", author: "p17", kind: "리더", date: "2026-05-16",
+      title: "현장 안전점검, 감사합니다",
+      body: "지난 토요일 우천에도 불구하고 점검 나와주셔서 든든했습니다. 우리 현장의 무사고 100일, 여러분 덕분입니다.",
+      likes: 18,
+      comments: [
+        { body: "당연한 일인데도 챙겨주셔서 감사합니다 소장님." },
+        { body: "다같이 무사고 갑시다." },
+        { body: "안전이 최우선이죠." },
+      ],
+    },
+    { id: "t09", team: "교량현장", author: "p24", kind: "리더", date: "2026-05-19",
+      title: "장마 대비 사전 준비 감사합니다",
+      body: "장마 대비 자재 정리와 배수로 점검까지 빈틈없이 진행되었습니다. 고생 많으셨습니다.",
+      likes: 9,
+      comments: [
+        { body: "현장팀이 잘 도와주신 덕분이에요." },
+      ],
+    },
+    { id: "t10", team: "ESG팀", author: "p16", kind: "리더", date: "2026-05-20",
+      title: "ESG 보고서 초안 완성 축하합니다",
+      body: "신생 팀임에도 이런 결과물 만들어낸 것 자체가 대단해요. 모두 박수!",
+      likes: 7,
+      comments: [],
+    },
+
+    // ────── 우리(팀원) 메시지 — 익명, 행동 지향점 카테고리별 ──────
+    { id: "u01", team: "인사기획팀", kind: "우리", action: 1, date: "2026-05-19",
+      body: "회의 시작 5분 전에는 도착해서 자료를 미리 확인합니다.", likes: 14, comments: [
+        { body: "공감합니다. 시간 약속은 가장 기본이에요." },
+        { body: "회의 효율이 확실히 올라가더라구요." },
+      ] },
+    { id: "u02", team: "인사기획팀", kind: "우리", action: 1, date: "2026-05-20",
+      body: "퇴근 이후 메신저는 다음 날 응답합니다. 휴식을 존중해주세요.", likes: 22, comments: [
+        { body: "꼭 지켜졌으면 합니다." },
+      ] },
+    { id: "u03", team: "인사기획팀", kind: "우리", action: 2, date: "2026-05-20",
+      body: "동료의 자료에는 비판 대신 구체적인 코멘트를 답니다.", likes: 18, comments: [
+        { body: "이게 정말 큰 차이를 만들어요." },
+      ] },
+    { id: "u04", team: "인사기획팀", kind: "우리", action: 2, date: "2026-05-19",
+      body: "감사하다는 말은 그날 안에 표현합니다.", likes: 11, comments: [] },
+
+    { id: "u05", team: "재무회계팀", kind: "우리", action: 1, date: "2026-05-19",
+      body: "마감일은 마감일이 아닌 약속일이라는 마음으로 일합니다.", likes: 19, comments: [] },
+    { id: "u06", team: "재무회계팀", kind: "우리", action: 2, date: "2026-05-20",
+      body: "숫자 앞에 사람이 있다는 걸 잊지 않습니다.", likes: 24, comments: [
+        { body: "이 한 줄, 액자에 걸어두고 싶네요." },
+      ] },
+
+    { id: "u07", team: "메트로현장", kind: "우리", action: 1, date: "2026-05-18",
+      body: "작업 시작 전 안전수칙을 한 번 더 점검합니다.", likes: 33, comments: [
+        { body: "5분이 우리를 살립니다." },
+        { body: "조회 시간이 더 길어져도 좋습니다." },
+      ] },
+    { id: "u08", team: "메트로현장", kind: "우리", action: 1, date: "2026-05-17",
+      body: "신규 입소자에게는 안전 짝꿍을 지정합니다.", likes: 27, comments: [] },
+    { id: "u09", team: "메트로현장", kind: "우리", action: 2, date: "2026-05-18",
+      body: "도움 요청은 빠르게, 응답은 더 빠르게.", likes: 29, comments: [
+        { body: "이게 우리 현장의 분위기였으면 좋겠어요." },
+      ] },
+    { id: "u10", team: "메트로현장", kind: "우리", action: 2, date: "2026-05-16",
+      body: "조회 5분과 종회 5분은 어떤 일이 있어도 지킵니다.", likes: 21, comments: [] },
+
+    { id: "u11", team: "인재개발팀", kind: "우리", action: 1, date: "2026-05-19",
+      body: "교육생을 한 명의 동료로 대합니다.", likes: 25, comments: [] },
+    { id: "u12", team: "인재개발팀", kind: "우리", action: 2, date: "2026-05-20",
+      body: "피드백은 구체적으로, 칭찬은 공개적으로.", likes: 20, comments: [
+        { body: "칭찬은 꼭 공개적으로 해주세요." },
+      ] },
+
+    { id: "u13", team: "교량현장", kind: "우리", action: 1, date: "2026-05-19",
+      body: "현장에서는 직책 호칭 대신 이름을 부릅니다.", likes: 17, comments: [] },
+    { id: "u14", team: "교량현장", kind: "우리", action: 2, date: "2026-05-18",
+      body: "비 오는 날 한 번 더 돌아봅니다.", likes: 14, comments: [] },
+
+    { id: "u15", team: "노무복지팀", kind: "우리", action: 1, date: "2026-05-20",
+      body: "동료의 컨디션을 먼저 물어봅니다.", likes: 13, comments: [] },
+    { id: "u16", team: "ESG팀", kind: "우리", action: 2, date: "2026-05-20",
+      body: "작은 실천이 큰 변화라는 마음으로 일합니다.", likes: 9, comments: [] },
+  ];
+
+  // Rule 데이터 — 그라운드룰 후보 3 + 각 후보별 실천방식 작성 + 최종 선정
+  const FREQ = ["매일", "주 1회", "격주", "월 1회", "기타"];
+  const DUR  = ["1주", "1개월", "분기", "상시", "기타"];
+
+  const ruleByTeam = {
+    "인사기획팀": {
+      candidates: [
+        { id: "c1", body: "월요일 아침 5분, '이번 주 핵심 업무 3개'를 채널에 공유한다.", author: "p02", date: "2026-07-06 10:15", sympathy: 47,
+          actions: [
+            { author: "p04", body: "매주 월요일 오전 9시까지 슬랙 '주간업무' 채널에 핵심 업무 3개를 정리해 공유한다. 형식은 '제목 / 결과목표 / 마감일' 세 줄.", freq: "주 1회", dur: "상시", sympathy: 23 },
+            { author: "p03", body: "월요 스탠드업 미팅 첫 5분에 한 명씩 돌아가며 핵심업무 3개를 구두로 공유.", freq: "주 1회", dur: "1개월", sympathy: 18 },
+            { author: "p02", body: "주간업무 카드 템플릿을 노션에 만들어두고 매주 월요일 자동 알림.", freq: "주 1회", dur: "분기", sympathy: 11 },
+          ] },
+        { id: "c2", body: "회의 끝나기 5분 전, 모두에게 '다른 생각이 남아있는 분?' 묻는다.", author: "p03", date: "2026-07-08 14:32", sympathy: 38,
+          actions: [
+            { author: "p01", body: "회의 어젠다 마지막 항목에 '남은 의견 확인' 5분을 항상 배치한다.", freq: "매일", dur: "상시", sympathy: 19 },
+            { author: "p04", body: "회의 종료 5분 전 진행자가 직접 호명하여 미발언자에게 질문한다.", freq: "매일", dur: "1개월", sympathy: 13 },
+          ] },
+        { id: "c3", body: "결과만이 아니라 '잘 안 되는 중'인 진행상황도 함께 공유한다.", author: "p04", date: "2026-07-10 09:48", sympathy: 29,
+          actions: [
+            { author: "p02", body: "주간 회고에서 'In Progress' 항목을 따로 두고 막힌 지점을 같이 적는다.", freq: "주 1회", dur: "상시", sympathy: 15 },
+            { author: "p03", body: "데일리 스크럼에서 '오늘의 막힘' 한 줄을 의무로 공유.", freq: "매일", dur: "분기", sympathy: 9 },
+          ] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p01", finalDate: "2026-07-15",
+    },
+    "인재개발팀": {
+      candidates: [
+        { id: "c1", body: "교육생을 한 명의 동료로 대한다.", author: "p06", date: "2026-07-05 11:22", sympathy: 31,
+          actions: [
+            { author: "p07", body: "신규 교육생에게도 모든 회의 초대 메일을 발송하고, 자기소개 5분을 마련한다.", freq: "주 1회", dur: "1개월", sympathy: 16 },
+            { author: "p06", body: "교육생 호칭은 직책 없이 이름+님으로 통일.", freq: "매일", dur: "상시", sympathy: 12 },
+          ] },
+        { id: "c2", body: "피드백은 구체적으로, 칭찬은 공개적으로.", author: "p07", date: "2026-07-06 16:10", sympathy: 24,
+          actions: [
+            { author: "p05", body: "팀 채널에 '오늘의 잘한 일' 스레드를 만들어 누구나 칭찬을 남길 수 있게 한다.", freq: "매일", dur: "분기", sympathy: 14 },
+            { author: "p07", body: "피드백 시에는 행동/영향/제안 3단 구조를 사용한다.", freq: "주 1회", dur: "상시", sympathy: 8 },
+          ] },
+        { id: "c3", body: "감사 메시지를 하루 한 번은 꼭 보낸다.", author: "p05", date: "2026-07-09 09:20", sympathy: 20,
+          actions: [
+            { author: "p06", body: "퇴근 전 누구에게 감사한지 한 줄로 적어 채널에 남긴다.", freq: "매일", dur: "1주", sympathy: 11 },
+          ] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p05", finalDate: "2026-07-14",
+    },
+    "재무회계팀": {
+      candidates: [
+        { id: "c1", body: "숫자 앞에 사람이 있다는 걸 잊지 말자.", author: "p11", date: "2026-07-04 10:00", sympathy: 29,
+          actions: [
+            { author: "p12", body: "결산 보고서 상단에 한 줄 '왜 이 숫자가 중요한가'를 적는다.", freq: "월 1회", dur: "상시", sympathy: 14 },
+            { author: "p11", body: "비용 검토 시 담당자와 1:1 통화로 배경을 먼저 듣는다.", freq: "월 1회", dur: "분기", sympathy: 10 },
+          ] },
+        { id: "c2", body: "마감일은 마감일이 아닌 약속일이다.", author: "p12", date: "2026-07-07 14:15", sympathy: 19,
+          actions: [
+            { author: "p10", body: "마감 D-3에 진척도를 팀에 공유하는 미니 스탠드업 30분.", freq: "월 1회", dur: "상시", sympathy: 12 },
+          ] },
+        { id: "c3", body: "이중 검토 체크리스트를 모두에게 적용한다.", author: "p13", date: "2026-07-09 11:05", sympathy: 12,
+          actions: [
+            { author: "p11", body: "결산 시 페어 리뷰: 1차 작성자가 아닌 다른 사람이 최종 검토.", freq: "월 1회", dur: "상시", sympathy: 7 },
+          ] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p10", finalDate: "2026-07-13",
+    },
+    "메트로현장": {
+      candidates: [
+        { id: "c1", body: "안전수칙 한 번 더 확인하고 시작한다.", author: "p20", date: "2026-07-03 07:05", sympathy: 41,
+          actions: [
+            { author: "p18", body: "조회 마지막 5분에 그날의 안전 포인트 1가지를 큰소리로 외친다.", freq: "매일", dur: "상시", sympathy: 24 },
+            { author: "p19", body: "고소작업 전에는 짝꿍이 안전벨트 체결을 서로 확인.", freq: "매일", dur: "상시", sympathy: 18 },
+            { author: "p20", body: "신규 입소자에게 안전 짝꿍을 일주일 지정한다.", freq: "주 1회", dur: "1개월", sympathy: 12 },
+          ] },
+        { id: "c2", body: "도움 요청은 빠르게, 응답은 더 빠르게.", author: "p19", date: "2026-07-05 11:40", sympathy: 33,
+          actions: [
+            { author: "p17", body: "현장 무전기 호출 시 30초 내 응답을 원칙으로 한다.", freq: "매일", dur: "상시", sympathy: 21 },
+            { author: "p20", body: "도움 요청 채널을 별도로 두고 누구나 비밀번호 없이 호출.", freq: "매일", dur: "1개월", sympathy: 9 },
+          ] },
+        { id: "c3", body: "조회 5분, 종회 5분은 꼭 지킨다.", author: "p18", date: "2026-07-08 17:30", sympathy: 26,
+          actions: [
+            { author: "p17", body: "비가 와도 비가림막 아래에서 5분 조회를 진행한다.", freq: "매일", dur: "상시", sympathy: 14 },
+          ] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p17", finalDate: "2026-07-12",
+    },
+    "교량현장": {
+      candidates: [
+        { id: "c1", body: "현장에서는 직책 호칭 대신 이름을 부른다.", author: "p25", date: "2026-07-04 09:30", sympathy: 21,
+          actions: [
+            { author: "p24", body: "안전모에 이름 스티커를 부착해 누구나 이름으로 부를 수 있게 한다.", freq: "매일", dur: "상시", sympathy: 13 },
+          ] },
+        { id: "c2", body: "비 오는 날 한 번 더 돌아본다.", author: "p24", date: "2026-07-07 16:20", sympathy: 17,
+          actions: [
+            { author: "p25", body: "강수예보 시 점심 후 합동 워킹라운드 30분.", freq: "기타", dur: "상시", sympathy: 9 },
+          ] },
+        { id: "c3", body: "현장 사진을 매일 1장 공유한다.", author: "p25", date: "2026-07-09 18:45", sympathy: 14,
+          actions: [
+            { author: "p24", body: "퇴근 전 누구나 한 장씩 단톡방에 공유한다.", freq: "매일", dur: "1주", sympathy: 8 },
+          ] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p24", finalDate: "2026-07-12",
+    },
+    "노무복지팀": {
+      candidates: [
+        { id: "c1", body: "동료의 컨디션을 먼저 묻는다.", author: "p09", date: "2026-07-05 09:00", sympathy: 16,
+          actions: [{ author: "p09", body: "매주 금요일 10분 '잘 지냈어' 시간 운영.", freq: "주 1회", dur: "상시", sympathy: 10 }] },
+        { id: "c2", body: "동료의 노고를 그날 안에 표현한다.", author: "p08", date: "2026-07-08 17:00", sympathy: 11,
+          actions: [{ author: "p09", body: "퇴근 인사 시 누구에게 감사한지 한 마디.", freq: "매일", dur: "1주", sympathy: 7 }] },
+        { id: "c3", body: "회식 약속은 미리 잡지 않고 그날 분위기에 맞춘다.", author: "p09", date: "2026-07-10 14:00", sympathy: 7,
+          actions: [{ author: "p08", body: "팀장이 매주 한 번 분위기를 살펴 모임을 제안.", freq: "주 1회", dur: "분기", sympathy: 4 }] },
+      ],
+      finalCandidate: "c1", finalAction: 0, decidedBy: "p08", finalDate: "2026-07-15",
+    },
+  };
+
+  // 갤러리
+  const gallery = [
+    { id: "g01", team: "메트로현장", author: "p20", rule: "안전수칙 한 번 더 확인하고 시작하기", date: "2026-05-18", caption: "조회 안전점검 5분" },
+    { id: "g02", team: "메트로현장", author: "p19", rule: "안전수칙 한 번 더 확인하고 시작하기", date: "2026-05-17", caption: "안전모 점검 인증" },
+    { id: "g03", team: "메트로현장", author: "p17", rule: "주 1회 안전 캠페인", date: "2026-05-15", caption: "점심 안전 토크" },
+    { id: "g04", team: "메트로현장", author: "p18", rule: "안전수칙 한 번 더 확인하고 시작하기", date: "2026-05-14", caption: "조회 인증" },
+    { id: "g05", team: "교량현장", author: "p25", rule: "현장 사진 매일 1장", date: "2026-05-18", caption: "오늘의 교량" },
+    { id: "g06", team: "교량현장", author: "p24", rule: "현장 사진 매일 1장", date: "2026-05-17", caption: "장마 대비 점검" },
+    { id: "g07", team: "인사기획팀", author: "p02", rule: "주간 핵심 업무 공유", date: "2026-05-16", caption: "월요 스탠드업" },
+    { id: "g08", team: "인사기획팀", author: "p04", rule: "주간 핵심 업무 공유", date: "2026-05-16", caption: "팀 화이트보드" },
+    { id: "g09", team: "인사기획팀", author: "p03", rule: "주간 핵심 업무 공유", date: "2026-05-16", caption: "동료의 업무 공유" },
+    { id: "g10", team: "인재개발팀", author: "p06", rule: "감사 메시지 매일 1번", date: "2026-05-19", caption: "감사메시지 캡처" },
+    { id: "g11", team: "인재개발팀", author: "p07", rule: "감사 메시지 매일 1번", date: "2026-05-18", caption: "메신저 인증샷" },
+    { id: "g12", team: "재무회계팀", author: "p11", rule: "마감 D-3 진척 공유", date: "2026-05-17", caption: "결산 회의" },
+    { id: "g13", team: "재무회계팀", author: "p12", rule: "마감 D-3 진척 공유", date: "2026-05-17", caption: "팀룸 인증" },
+    { id: "g14", team: "도로1현장", author: "p22", rule: "조회시간 10분 마음나눔", date: "2026-05-18", caption: "조회 인증" },
+    { id: "g15", team: "교량현장", author: "p25", rule: "현장 사진 매일 1장", date: "2026-05-16", caption: "현장 일출" },
+    { id: "g16", team: "분당현장", author: "p27", rule: "오전 9시 데일리 체크인", date: "2026-05-19", caption: "현장 체크인" },
+    { id: "g17", team: "광교현장", author: "p28", rule: "감사 한마디", date: "2026-05-20", caption: "팀 단체샷" },
+    { id: "g18", team: "송도현장", author: "p29", rule: "마일스톤 인증샷", date: "2026-05-19", caption: "골조완료 인증" },
+    { id: "g19", team: "노무복지팀", author: "p09", rule: "잘 지냈어 10분 시간", date: "2026-05-19", caption: "팀 잡담타임" },
+    { id: "g20", team: "ESG팀", author: "p16", rule: "주 1회 ESG 한 줄 회고", date: "2026-05-20", caption: "주간 회고 노트" },
+  ];
+
+  // 포인트 + 상세
+  const missionCatalog = [
+    { code: "daily-chat", nm: "데일리 톡 1회 작성", pt: 5 },
+    { code: "react-3",    nm: "동료 메시지 3건 공감", pt: 3 },
+    { code: "sticker-2",  nm: "스티커 2개 전달", pt: 6 },
+    { code: "weekly-rec", nm: "주간 회고 작성", pt: 10 },
+    { code: "rule-cert",  nm: "그라운드룰 인증샷 업로드", pt: 12 },
+    { code: "leader-msg", nm: "리더 메시지 작성", pt: 8 },
+    { code: "comment-2",  nm: "팀 메시지 2건 댓글", pt: 4 },
+    { code: "keyword",    nm: "오늘의 키워드 입력", pt: 3 },
+  ];
+  const keywordPool = ["감사", "응원", "신뢰", "성장", "협업", "도전", "배려", "존중", "소통", "정확", "안전", "실천"];
+  const seedRand = (s) => { let x = s; return () => { x = (x * 9301 + 49297) % 233280; return x / 233280; }; };
+
+  const pointsByPerson = {};
+  const pointDetails = {};
+  people.forEach((p) => {
+    const r = seedRand(parseInt(p.id.slice(1)) * 17 + 3);
+    const missionLog = [];
+    const numMissions = 8 + Math.floor(r() * 20);
+    let mPts = 0;
+    for (let i = 0; i < numMissions; i++) {
+      const m = missionCatalog[Math.floor(r() * missionCatalog.length)];
+      const day = 1 + Math.floor(r() * 20);
+      missionLog.push({ date: `2026-05-${String(day).padStart(2, "0")}`, code: m.code, nm: m.nm, pt: m.pt });
+      mPts += m.pt;
+    }
+    const streakDays = 3 + Math.floor(r() * 18);
+    const streakLog = [];
+    let sPts = 0;
+    for (let i = 1; i <= streakDays; i++) {
+      const bonus = i % 7 === 0 ? 20 : i % 3 === 0 ? 8 : 3;
+      streakLog.push({ day: i, date: `2026-05-${String(i).padStart(2, "0")}`, pt: bonus });
+      sPts += bonus;
+    }
+    const keywordLog = [];
+    const numKw = 5 + Math.floor(r() * 15);
+    let kPts = 0;
+    for (let i = 0; i < numKw; i++) {
+      const kw = keywordPool[Math.floor(r() * keywordPool.length)];
+      const day = 1 + Math.floor(r() * 20);
+      keywordLog.push({ date: `2026-05-${String(day).padStart(2, "0")}`, kw, pt: 3 });
+      kPts += 3;
+    }
+    pointsByPerson[p.id] = { mission: mPts, streak: sPts, keyword: kPts, total: mPts + sPts + kPts };
+    pointDetails[p.id] = {
+      missionLog: missionLog.sort((a, b) => b.date.localeCompare(a.date)),
+      streakLog: streakLog.sort((a, b) => b.day - a.day),
+      keywordLog: keywordLog.sort((a, b) => b.date.localeCompare(a.date)),
+      currentStreak: streakDays,
+    };
+  });
+
+  return { orgs, roles, people, talks, stickerTypes, stickers, ruleByTeam, gallery, pointsByPerson, pointDetails, missionCatalog, FREQ, DUR };
+})();
+
+window.HELPERS = {
+  personById: (id) => window.MOCK.people.find(p => p.id === id),
+  teamsInScope: (filter) => {
+    const teams = [];
+    Object.entries(window.MOCK.orgs).forEach(([본부, sils]) => {
+      if (filter.본부 && filter.본부 !== 본부) return;
+      Object.entries(sils).forEach(([sil, ts]) => {
+        if (filter.실 && filter.실 !== sil) return;
+        ts.forEach(t => {
+          if (filter.팀 && filter.팀 !== t) return;
+          teams.push({ 본부, 실: sil, 팀: t });
+        });
+      });
+    });
+    return teams;
+  },
+  peopleInScope: (filter) => {
+    const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+    const teamSet = new Set(teams);
+    return window.MOCK.people.filter(p => teamSet.has(p.team));
+  },
+  medal: (rank) => rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null,
+};
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// Shared components for hi-5 관리자
+const { useState, useMemo, useEffect, useRef } = React;
+
+// === Header ===
+function AdminHeader({ filter, setFilter, role, setRole }) {
+  const orgs = window.MOCK.orgs;
+  const 본부List = Object.keys(orgs);
+  const 실List = filter.본부 ? Object.keys(orgs[filter.본부] || {}) : [];
+  const 팀List = filter.실 && filter.본부 ? (orgs[filter.본부][filter.실] || []) : [];
+
+  const updateFilter = (level, value) => {
+    const next = { ...filter };
+    if (level === "본부") { next.본부 = value; next.실 = ""; next.팀 = ""; }
+    if (level === "실") { next.실 = value; next.팀 = ""; }
+    if (level === "팀") { next.팀 = value; }
+    setFilter(next);
+  };
+
+  return (
+    <header className="ah-header">
+      <div className="ah-brand">
+        <img src="data:image/png;base64,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" alt="logo" className="ah-logo-img" />
+        <div>
+          <div className="ah-title">Culture Quest <span style={{color:'var(--muted)', fontWeight: 500}}>관리자</span></div>
+          <div className="ah-sub">소통과 인정</div>
+        </div>
+      </div>
+
+      <div className="ah-filters">
+        <FilterSelect label="본부 / 사업부" value={filter.본부} options={본부List} onChange={(v) => updateFilter("본부", v)} placeholder="전체 본부/사업부" />
+        <FilterSelect label="실 / 센터 / 담당" value={filter.실} options={실List} onChange={(v) => updateFilter("실", v)} placeholder={filter.본부 ? "전체 실/센터/담당" : "본부 먼저 선택"} disabled={!filter.본부} />
+        <FilterSelect label="팀 / 현장" value={filter.팀} options={팀List} onChange={(v) => updateFilter("팀", v)} placeholder={filter.실 ? "전체 팀/현장" : "실 먼저 선택"} disabled={!filter.실} />
+        {(filter.본부 || filter.실 || filter.팀) && (
+          <button className="ah-clear" onClick={() => setFilter({ 본부: "", 실: "", 팀: "" })}>초기화</button>
+        )}
+      </div>
+
+      <div className="ah-right">
+        <div className="ah-role">
+          <label>권한</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            {window.MOCK.roles.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+          </select>
+        </div>
+        <div className="ah-user">
+          <div className="ah-avatar">운</div>
+          <div>
+            <div className="ah-user-name">운영팀 관리자</div>
+            <div className="ah-user-sub">기업문화팀</div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function FilterSelect({ label, value, options, onChange, placeholder, disabled }) {
+  return (
+    <div className={"ah-filter " + (disabled ? "disabled" : "")}>
+      <span className="ah-filter-label">{label}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
+        <option value="">{placeholder}</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+// === Tabs ===
+function TopTabs({ tab, setTab, tabs }) {
+  return (
+    <div className="ah-tabs">
+      {tabs.map(t => (
+        <button key={t.key} className={"ah-tab " + (tab === t.key ? "active" : "")} onClick={() => setTab(t.key)}>
+          <span>{t.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// === Sidebar wrappers ===
+function SidebarSection({ title, children, action }) {
+  return (
+    <div className="sb-section">
+      <div className="sb-section-head">
+        <h3>{title}</h3>
+        {action}
+      </div>
+      <div className="sb-section-body">{children}</div>
+    </div>
+  );
+}
+
+function StatTile({ label, value, sub }) {
+  return (
+    <div className="stat-tile">
+      <div className="stat-label">{label}</div>
+      <div className="stat-value">{value}</div>
+      {sub && <div className="stat-sub">{sub}</div>}
+    </div>
+  );
+}
+
+// === Card ===
+function Card({ title, subtitle, action, children, padded = true, className = "" }) {
+  return (
+    <section className={"card " + className}>
+      {(title || action) && (
+        <header className="card-head">
+          <div>
+            {title && <h2>{title}</h2>}
+            {subtitle && <p className="card-sub">{subtitle}</p>}
+          </div>
+          {action}
+        </header>
+      )}
+      <div className={"card-body " + (padded ? "padded" : "")}>{children}</div>
+    </section>
+  );
+}
+
+// === Avatar ===
+function Avatar({ name, size = 32 }) {
+  const initial = name ? name.slice(0, 1) : "?";
+  return <div className="avatar" style={{ width: size, height: size, fontSize: size * 0.42 }}>{initial}</div>;
+}
+
+// === Person inline ===
+function PersonInline({ id, showTeam = false }) {
+  const p = window.HELPERS.personById(id);
+  if (!p) return <span>{id}</span>;
+  return (
+    <span className="person-inline">
+      <Avatar name={p.name} size={22} />
+      <span className="pi-name">{p.name}</span>
+      <span className="pi-title">{p.title}</span>
+      {showTeam && <span className="pi-team">· {p.team}</span>}
+    </span>
+  );
+}
+
+function EmptyState({ children }) {
+  return <div className="empty">{children}</div>;
+}
+
+function Bar({ value, max, height = 8 }) {
+  const pct = max > 0 ? Math.max(2, (value / max) * 100) : 0;
+  return (
+    <div className="bar-track" style={{ height }}>
+      <div className="bar-fill" style={{ width: pct + "%" }} />
+    </div>
+  );
+}
+
+function Pill({ children, kind }) {
+  return <span className={"pill " + (kind || "")}>{children}</span>;
+}
+
+Object.assign(window, {
+  AdminHeader, TopTabs, SidebarSection, StatTile, Card, Avatar, PersonInline, EmptyState, Bar, Pill, FilterSelect,
+});
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// Per-tab sidebars
+const { useState: useState_s, useMemo: useMemo_s } = React;
+
+function ScopeBreadcrumb({ filter }) {
+  const crumbs = [];
+  if (filter.본부) crumbs.push(filter.본부); else crumbs.push("전체");
+  if (filter.실) crumbs.push(filter.실);
+  if (filter.팀) crumbs.push(filter.팀);
+  return (
+    <div className="scope-crumb">
+      {crumbs.map((c, i) => (
+        <React.Fragment key={i}>
+          <span className={i === crumbs.length - 1 ? "current" : ""}>{c}</span>
+          {i < crumbs.length - 1 && <span className="sep">›</span>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// 좌측 사이드바: 범위 요약 — 참여인원 / 합계 / 평균 / 최고 (Dashboard 전용)
+function RangeSummary({ filter }) {
+  const people = window.HELPERS.peopleInScope(filter);
+  const pts = window.MOCK.pointsByPerson;
+  const totals = people.map(p => (pts[p.id] || {}).total || 0);
+  const sum = totals.reduce((a, b) => a + b, 0);
+  const avg = people.length > 0 ? Math.round(sum / people.length) : 0;
+  const max = totals.length > 0 ? Math.max(...totals) : 0;
+  const top = [...people].sort((a, b) => ((pts[b.id] || {}).total || 0) - ((pts[a.id] || {}).total || 0))[0];
+
+  return (
+    <SidebarSection title="범위 요약">
+      <div className="sb-stats">
+        <div><span className="sb-k">참여인원</span><span className="sb-v">{people.length}명</span></div>
+        <div><span className="sb-k">합계 포인트</span><span className="sb-v">{sum.toLocaleString()}</span></div>
+        <div><span className="sb-k">평균 포인트</span><span className="sb-v">{avg.toLocaleString()}</span></div>
+        <div><span className="sb-k">최고 포인트</span><span className="sb-v">{max.toLocaleString()}</span></div>
+      </div>
+      {top && (
+        <div className="sb-spotlight">
+          <div className="sb-spot-label">최고 누적 1인</div>
+          <div className="sb-spot-name"><Avatar name={top.name} size={22} /> {top.name} <span style={{color: 'var(--muted)', fontWeight: 500, fontSize: 11, marginLeft: 4}}>{top.title}</span></div>
+          <div className="sb-spot-team">{top.team}</div>
+        </div>
+      )}
+    </SidebarSection>
+  );
+}
+
+// 본부별 평균 포인트 — 평균값(예: 토목사업본부 1,300P)
+function HQAvgList({ filter, setFilter }) {
+  const pts = window.MOCK.pointsByPerson;
+  const data = Object.keys(window.MOCK.orgs).map(hq => {
+    const teams = Object.values(window.MOCK.orgs[hq]).flat();
+    const peeps = window.MOCK.people.filter(p => teams.includes(p.team));
+    const sum = peeps.reduce((a, p) => a + ((pts[p.id] || {}).total || 0), 0);
+    const avg = peeps.length > 0 ? Math.round(sum / peeps.length) : 0;
+    return { hq, teamCount: teams.length, peeps: peeps.length, avg };
+  });
+
+  return (
+    <SidebarSection title="본부별 평균 포인트">
+      {data.map(d => (
+        <button key={d.hq}
+          className={"sb-hq-row " + (filter.본부 === d.hq ? "active" : "")}
+          onClick={() => setFilter({ 본부: d.hq, 실: "", 팀: "" })}>
+          <div className="sb-hq-row-left">
+            <div className="sb-hq-name">{d.hq}</div>
+            <div className="sb-hq-meta">{d.teamCount}개 팀 · {d.peeps}명</div>
+          </div>
+          <div className="sb-hq-avg">{d.avg.toLocaleString()}<span>P</span></div>
+        </button>
+      ))}
+    </SidebarSection>
+  );
+}
+
+function DashboardSidebar({ filter, setFilter }) {
+  return (
+    <aside className="sidebar">
+      <ScopeBreadcrumb filter={filter} />
+      <RangeSummary filter={filter} />
+      <HQAvgList filter={filter} setFilter={setFilter} />
+    </aside>
+  );
+}
+
+function TalkSidebar({ filter, setFilter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const talks = window.MOCK.talks.filter(t => teamSet.has(t.team));
+  const leaders = talks.filter(t => t.kind === "리더");
+  const members = talks.filter(t => t.kind === "우리");
+
+  const byTeam = {};
+  talks.forEach(t => {
+    if (!byTeam[t.team]) byTeam[t.team] = { team: t.team, msg: 0, likes: 0 };
+    byTeam[t.team].msg++;
+    byTeam[t.team].likes += t.likes;
+  });
+  const teamArr = Object.values(byTeam).sort((a, b) => b.msg - a.msg);
+  const maxMsg = Math.max(...teamArr.map(t => t.msg), 1);
+
+  const noResponse = window.HELPERS.teamsInScope(filter)
+    .filter(t => !talks.some(x => x.team === t.팀))
+    .map(t => t.팀)
+    .slice(0, 8);
+
+  return (
+    <aside className="sidebar">
+      <ScopeBreadcrumb filter={filter} />
+      <SidebarSection title="Talk 활동 요약">
+        <div className="sb-stats">
+          <div><span className="sb-k">리더 메시지</span><span className="sb-v">{leaders.length}</span></div>
+          <div><span className="sb-k">우리 메시지</span><span className="sb-v">{members.length}</span></div>
+          <div><span className="sb-k">총 댓글</span><span className="sb-v">{talks.reduce((a, t) => a + t.comments.length, 0)}</span></div>
+          <div><span className="sb-k">총 좋아요</span><span className="sb-v">{talks.reduce((a, t) => a + t.likes, 0)}</span></div>
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="팀·현장별 활동량">
+        {teamArr.length === 0 ? <div style={{fontSize:12, color:'var(--muted)'}}>활동 없음</div> : teamArr.map(t => (
+          <div key={t.team} className="sb-bar-row">
+            <div className="sb-bar-label">{t.team}</div>
+            <div className="sb-bar-track"><Bar value={t.msg} max={maxMsg} height={6} /></div>
+            <div className="sb-bar-val">{t.msg}</div>
+          </div>
+        ))}
+      </SidebarSection>
+
+      {noResponse.length > 0 && (
+        <SidebarSection title="아직 메시지가 없는 팀">
+          <div className="sb-alert">
+            {noResponse.map(t => <span key={t} className="sb-alert-chip">{t}</span>)}
+          </div>
+        </SidebarSection>
+      )}
+    </aside>
+  );
+}
+
+function PlaySidebar({ filter, setFilter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const peopleInScope = window.MOCK.people.filter(p => teamSet.has(p.team));
+  const idSet = new Set(peopleInScope.map(p => p.id));
+  const scoped = window.MOCK.stickers.filter(s => idSet.has(s.to));
+
+  const active = new Set();
+  scoped.forEach(s => { if (idSet.has(s.to)) active.add(s.to); if (idSet.has(s.from)) active.add(s.from); });
+
+  const recvCount = {};
+  scoped.forEach(s => { recvCount[s.to] = (recvCount[s.to] || 0) + 1; });
+  const topRecvId = Object.entries(recvCount).sort((a, b) => b[1] - a[1])[0];
+  const topRecv = topRecvId ? window.HELPERS.personById(topRecvId[0]) : null;
+
+  const byType = {};
+  scoped.forEach(s => { byType[s.type] = (byType[s.type] || 0) + 1; });
+  const maxType = Math.max(...Object.values(byType), 1);
+
+  const bySender = {};
+  scoped.forEach(s => {
+    if (!idSet.has(s.from)) return;
+    bySender[s.from] = (bySender[s.from] || 0) + 1;
+  });
+  const senderArr = Object.entries(bySender).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  return (
+    <aside className="sidebar">
+      <ScopeBreadcrumb filter={filter} />
+      <SidebarSection title="Play 요약">
+        <div className="sb-stats">
+          <div><span className="sb-k">총 발급 스티커</span><span className="sb-v">{scoped.length}</span></div>
+          <div><span className="sb-k">활동인원</span><span className="sb-v">{active.size}명</span></div>
+          <div><span className="sb-k">1인 평균</span><span className="sb-v">{active.size ? (scoped.length / active.size).toFixed(1) : 0}</span></div>
+          <div><span className="sb-k">최다 수령인</span><span className="sb-v" style={{fontSize: 13}}>{topRecv ? topRecv.name : "-"}</span></div>
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="스티커 종류별 분포">
+        {window.MOCK.stickerTypes.map(t => (
+          <div key={t.key} className="sb-bar-row">
+            <div className="sb-bar-label"><span style={{marginRight:4}}>{t.emoji}</span>{t.nm}</div>
+            <div className="sb-bar-track"><Bar value={byType[t.key] || 0} max={maxType} height={6} /></div>
+            <div className="sb-bar-val">{byType[t.key] || 0}</div>
+          </div>
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="가장 많이 보낸 사람 TOP 5">
+        <ol className="sb-sender">
+          {senderArr.map(([pid, n], i) => {
+            const p = window.HELPERS.personById(pid);
+            return (
+              <li key={pid}>
+                <span className="sb-sender-rank">{i + 1}</span>
+                <div>
+                  <div className="sb-sender-name">{p.name}</div>
+                  <div className="sb-sender-team">{p.team}</div>
+                </div>
+                <b>{n}</b>
+              </li>
+            );
+          })}
+        </ol>
+      </SidebarSection>
+    </aside>
+  );
+}
+
+function RuleSidebar({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const ruleByTeam = window.MOCK.ruleByTeam;
+  const teamsWithRules = Object.keys(ruleByTeam).filter(t => teamSet.has(t));
+
+  const totalCands = teamsWithRules.reduce((a, t) => a + ruleByTeam[t].candidates.length, 0);
+  const totalActions = teamsWithRules.reduce((a, t) =>
+    a + ruleByTeam[t].candidates.reduce((b, c) => b + c.actions.length, 0), 0);
+  const confirmed = teamsWithRules.filter(t => ruleByTeam[t].finalCandidate).length;
+
+  const notDecided = teams.filter(t => !ruleByTeam[t] || !ruleByTeam[t].finalCandidate);
+
+  return (
+    <aside className="sidebar">
+      <ScopeBreadcrumb filter={filter} />
+      <SidebarSection title="Rule 요약">
+        <div className="sb-stats">
+          <div><span className="sb-k">참여 팀</span><span className="sb-v">{teamsWithRules.length}</span></div>
+          <div><span className="sb-k">후보</span><span className="sb-v">{totalCands}</span></div>
+          <div><span className="sb-k">실천방식</span><span className="sb-v">{totalActions}</span></div>
+          <div><span className="sb-k">확정</span><span className="sb-v">{confirmed}/{teamsWithRules.length}</span></div>
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="참여 팀 점프">
+        {teamsWithRules.map(t => (
+          <button key={t} className="sb-jump" onClick={() => {
+            document.getElementById("rule-team-" + t)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}>
+            <div className="sb-jump-top">
+              <span>{t}</span>
+              <span className="cnt">{ruleByTeam[t].finalCandidate ? "확정" : "진행중"}</span>
+            </div>
+          </button>
+        ))}
+      </SidebarSection>
+
+      {notDecided.length > 0 && (
+        <SidebarSection title="아직 확정되지 않은 팀">
+          <div className="sb-alert">
+            {notDecided.slice(0, 10).map(t => <span key={t} className="sb-alert-chip">{t}</span>)}
+          </div>
+        </SidebarSection>
+      )}
+    </aside>
+  );
+}
+
+function GallerySidebar({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const photos = window.MOCK.gallery.filter(g => teamSet.has(g.team));
+
+  const byTeam = {};
+  photos.forEach(p => { byTeam[p.team] = (byTeam[p.team] || 0) + 1; });
+  const teamArr = Object.entries(byTeam).sort((a, b) => b[1] - a[1]);
+  const maxTeam = Math.max(...teamArr.map(t => t[1]), 1);
+
+  const byDate = {};
+  photos.forEach(p => { byDate[p.date] = (byDate[p.date] || 0) + 1; });
+  const dateArr = Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0]));
+
+  return (
+    <aside className="sidebar">
+      <ScopeBreadcrumb filter={filter} />
+      <SidebarSection title="갤러리 요약">
+        <div className="sb-stats">
+          <div><span className="sb-k">사진</span><span className="sb-v">{photos.length}</span></div>
+          <div><span className="sb-k">팀</span><span className="sb-v">{teamArr.length}</span></div>
+          <div><span className="sb-k">날짜</span><span className="sb-v">{dateArr.length}</span></div>
+          <div><span className="sb-k">최근</span><span className="sb-v" style={{fontSize: 13}}>{dateArr[0] ? dateArr[0][0].slice(5) : "-"}</span></div>
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="팀·현장별 업로드">
+        {teamArr.map(([team, n]) => (
+          <div key={team} className="sb-bar-row">
+            <div className="sb-bar-label">{team}</div>
+            <div className="sb-bar-track"><Bar value={n} max={maxTeam} height={6} /></div>
+            <div className="sb-bar-val">{n}</div>
+          </div>
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="최근 업로드 일자">
+        {dateArr.slice(0, 7).map(([d, n]) => (
+          <div key={d} className="sb-date-row">
+            <span>{d}</span>
+            <b>{n}장</b>
+          </div>
+        ))}
+      </SidebarSection>
+    </aside>
+  );
+}
+
+Object.assign(window, { DashboardSidebar, TalkSidebar, PlaySidebar, RuleSidebar, GallerySidebar, RangeSummary });
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// Tab views
+const { useState: useState_t, useMemo: useMemo_t, useEffect: useEffect_t, useRef: useRef_t } = React;
+
+function renderRank(i) {
+  const m = window.HELPERS.medal(i + 1);
+  return m ? <span className="medal">{m}</span> : (i + 1);
+}
+
+// 본사 vs 현장 분류: 팀 이름에 "현장"이 들어가면 현장 본부로 분류
+function isFieldHQ(hq) {
+  const teams = Object.values(window.MOCK.orgs[hq]).flat();
+  return teams.some(t => /현장/.test(t));
+}
+
+// 평균 포인트 트리 빌드 ({ name, type, count, avg, children })
+function buildOrgTree(filter) {
+  const pts = window.MOCK.pointsByPerson;
+  const calcAvg = (peeps) => {
+    const sum = peeps.reduce((a, p) => a + ((pts[p.id] || {}).total || 0), 0);
+    return peeps.length > 0 ? Math.round(sum / peeps.length) : 0;
+  };
+
+  const hqs = Object.keys(window.MOCK.orgs);
+  return hqs.map(hq => {
+    const sils = window.MOCK.orgs[hq];
+    const silNodes = Object.entries(sils).map(([sil, teams]) => {
+      const teamNodes = teams.map(team => {
+        const peeps = window.MOCK.people.filter(p => p.team === team);
+        return { name: team, type: "팀", count: peeps.length, avg: calcAvg(peeps), parent: sil, hq };
+      });
+      const silPeeps = window.MOCK.people.filter(p => p.dept2 === sil && p.dept1 === hq);
+      return { name: sil, type: "실", count: silPeeps.length, avg: calcAvg(silPeeps), children: teamNodes, parent: hq };
+    });
+    const hqPeeps = window.MOCK.people.filter(p => p.dept1 === hq);
+    return {
+      name: hq, type: "본부",
+      count: hqPeeps.length,
+      avg: calcAvg(hqPeeps),
+      children: silNodes,
+      field: isFieldHQ(hq),
+    };
+  });
+}
+
+// 회사 전체 팀 평균의 max — 컬러 인디케이터 기준
+function allTeamMaxAvg() {
+  const pts = window.MOCK.pointsByPerson;
+  const out = [];
+  Object.values(window.MOCK.orgs).forEach(sils => {
+    Object.values(sils).flat().forEach(team => {
+      const peeps = window.MOCK.people.filter(p => p.team === team);
+      const sum = peeps.reduce((a, p) => a + ((pts[p.id] || {}).total || 0), 0);
+      out.push(peeps.length > 0 ? Math.round(sum / peeps.length) : 0);
+    });
+  });
+  return Math.max(...out, 1);
+}
+
+function indicatorColor(pct) {
+  if (pct >= 0.75) return "#4A6FA5";
+  if (pct >= 0.50) return "#6B8AAD";
+  if (pct >= 0.25) return "#9AB0CA";
+  return "#C8D2DE";
+}
+
+function OrgNode({ node, depth, max, openMap, setOpenMap }) {
+  const key = `${node.parent || ""}::${node.name}`;
+  const hasChildren = node.children && node.children.length > 0;
+  const open = openMap[key];
+  const pct = max > 0 ? node.avg / max : 0;
+  const isEmpty = node.count === 0;
+
+  return (
+    <>
+      <div
+        className={"org-node depth-" + depth + (hasChildren ? "" : " leaf") + (isEmpty ? " empty" : "")}
+        onClick={() => { if (hasChildren) setOpenMap({ ...openMap, [key]: !open }); }}
+      >
+        <span className="org-node-toggle">{hasChildren ? (open ? "▾" : "▸") : "·"}</span>
+        <span className="org-node-name">{node.name}</span>
+        <span className="org-node-count">{node.count}명</span>
+        <span className="org-node-indicator">
+          {!isEmpty && <span className="org-node-indicator-fill" style={{ width: Math.max(4, pct * 100) + "%", background: indicatorColor(pct) }} />}
+        </span>
+        <span className="org-node-avg">{node.avg.toLocaleString()}<span>P</span></span>
+      </div>
+      {open && hasChildren && node.children.map(c => (
+        <OrgNode key={c.name} node={c} depth={depth + 1} max={max} openMap={openMap} setOpenMap={setOpenMap} />
+      ))}
+    </>
+  );
+}
+
+// ========== DASHBOARD ==========
+function DashboardTab({ filter }) {
+  const people = window.HELPERS.peopleInScope(filter);
+  const pts = window.MOCK.pointsByPerson;
+
+  const [pointKind, setPointKind] = useState_t("total");
+  const kindKey = pointKind === "total" ? "_total" : pointKind;
+  const ranked = [...people]
+    .map(p => {
+      const v = pts[p.id] || { mission: 0, streak: 0, keyword: 0, total: 0 };
+      return { ...p, ...v, _total: v.total };
+    })
+    .sort((a, b) => (b[kindKey] || 0) - (a[kindKey] || 0));
+  const maxVal = Math.max(...ranked.map(r => r[kindKey] || 0), 1);
+  const kindLabel = { total: "전체", mission: "미션", streak: "연속참여", keyword: "키워드 입력" }[pointKind];
+
+  const [search, setSearch] = useState_t("");
+  const [openSearch, setOpenSearch] = useState_t(false);
+  const [selectedEmployee, setSelectedEmployee] = useState_t(null);
+  const searchResults = search.trim()
+    ? window.MOCK.people
+        .filter(p => p.name.includes(search.trim()) || p.team.includes(search.trim()) || (p.title || "").includes(search.trim()))
+        .slice(0, 12)
+    : [];
+
+  // 조직 트리
+  const tree = useMemo_t(() => buildOrgTree(filter), []);
+  const hqMax = allTeamMaxAvg();
+  const officeOrgs = tree.filter(n => !n.field);
+  const fieldOrgs = tree.filter(n => n.field);
+
+  // 트리 검색
+  const [treeSearch, setTreeSearch] = useState_t("");
+  const treeMatches = useMemo_t(() => {
+    const q = treeSearch.trim();
+    if (!q) return null;
+    const out = [];
+    tree.forEach(hq => {
+      hq.children.forEach(sil => {
+        sil.children.forEach(team => {
+          if (team.name.includes(q) || sil.name.includes(q) || hq.name.includes(q)) {
+            out.push({ ...team, breadcrumb: `${hq.name} · ${sil.name}` });
+          }
+        });
+      });
+    });
+    return out.sort((a, b) => b.avg - a.avg);
+  }, [treeSearch]);
+
+  const [officeOpen, setOfficeOpen] = useState_t({});
+  const [fieldOpen, setFieldOpen] = useState_t({});
+
+  return (
+    <div className="dash-grid">
+      <Card className="span-full" title="직원 검색 · 포인트 상세조회">
+        <div className="search-bar-row">
+          <p style={{color: 'var(--muted)', fontSize: 12.5, margin: 0}}>
+            상위 랭크 직원을 클릭하거나 검색창에서 직원을 선택하면 미션 · 연속참여 · 키워드 입력 별 상세 적립 내역을 확인할 수 있습니다.
+          </p>
+        </div>
+        <div className="search-bar" style={{maxWidth: 'none'}}>
+          <input
+            type="text"
+            value={search}
+            placeholder="이름, 팀, 직책으로 검색하세요"
+            onChange={(e) => { setSearch(e.target.value); setOpenSearch(true); }}
+            onFocus={() => setOpenSearch(true)}
+            onBlur={() => setTimeout(() => setOpenSearch(false), 200)}
+          />
+          {openSearch && searchResults.length > 0 && (
+            <div className="search-results">
+              {searchResults.map(p => {
+                const total = (pts[p.id] || {}).total || 0;
+                return (
+                  <div key={p.id} className="search-result" onMouseDown={() => { setSelectedEmployee(p.id); setOpenSearch(false); setSearch(""); }}>
+                    <Avatar name={p.name} size={32} />
+                    <div>
+                      <div className="sr-name">{p.name} <span className="rank-title">{p.title}</span></div>
+                      <div className="sr-meta">{p.dept1} · {p.dept2} · {p.team}</div>
+                    </div>
+                    <div className="sr-pts">{total.toLocaleString()}<span style={{fontSize:11,color:'var(--muted)',marginLeft:2,fontWeight:500}}>P</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card className="span-full" title="개인 누적 포인트 랭킹" subtitle="TOP 10" action={
+        <div className="seg">
+          {[["total","전체"],["mission","미션"],["streak","연속참여"],["keyword","키워드 입력"]].map(([k, l]) => (
+            <button key={k} className={"seg-btn " + (pointKind === k ? "active" : "")} onClick={() => setPointKind(k)}>{l}</button>
+          ))}
+        </div>
+      }>
+        <ol className="rank-list">
+          {ranked.slice(0, 10).map((p, i) => (
+            <li key={p.id} className="rank-row clickable" onClick={() => setSelectedEmployee(p.id)}>
+              <span className="rank-pos">{renderRank(i)}</span>
+              <Avatar name={p.name} size={32} />
+              <div className="rank-info">
+                <div className="rank-name">{p.name} <span className="rank-title">{p.title}</span></div>
+                <div className="rank-team">{p.dept1} · {p.dept2} · {p.team}</div>
+              </div>
+              <div className="rank-bar"><Bar value={p[kindKey] || 0} max={maxVal} /></div>
+              <div className="rank-total">{(p[kindKey] || 0).toLocaleString()}<span>P</span></div>
+            </li>
+          ))}
+        </ol>
+        <div style={{marginTop: 10, fontSize: 11, color: 'var(--muted)'}}>{kindLabel} 포인트 기준 · 행을 클릭하면 상세 적립내역</div>
+      </Card>
+
+      <Card className="span-full" title="조직별 평균 누적 포인트" padded={false}>
+        <div className="org-tree-controls">
+          <div className="org-tree-search">
+            <input
+              type="text"
+              value={treeSearch}
+              placeholder="팀/현장명 검색"
+              onChange={(e) => setTreeSearch(e.target.value)}
+            />
+          </div>
+          <div className="org-tree-legend">
+            <span><span className="leg-dot" style={{background:"#C8D2DE"}}></span>하위 25%</span>
+            <span><span className="leg-dot" style={{background:"#9AB0CA"}}></span>25-50%</span>
+            <span><span className="leg-dot" style={{background:"#6B8AAD"}}></span>50-75%</span>
+            <span><span className="leg-dot" style={{background:"#4A6FA5"}}></span>상위 25%</span>
+          </div>
+        </div>
+
+        {treeMatches ? (
+          <div style={{padding: '6px 0 14px'}}>
+            {treeMatches.length === 0 ? <EmptyState>검색 결과가 없습니다.</EmptyState> : (
+              <div>
+                {treeMatches.map((m, i) => {
+                  const pct = hqMax > 0 ? m.avg / hqMax : 0;
+                  return (
+                    <div key={i} className={"org-node leaf depth-1" + (m.count === 0 ? " empty" : "")}>
+                      <span className="org-node-toggle">·</span>
+                      <span className="org-node-name">
+                        {m.name}
+                        <span style={{color: 'var(--muted)', fontWeight: 500, marginLeft: 8, fontSize: 11}}>{m.breadcrumb}</span>
+                      </span>
+                      <span className="org-node-count">{m.count}명</span>
+                      <span className="org-node-indicator">
+                        {m.count > 0 && <span className="org-node-indicator-fill" style={{ width: Math.max(4, pct * 100) + "%", background: indicatorColor(pct) }} />}
+                      </span>
+                      <span className="org-node-avg">{m.avg.toLocaleString()}<span>P</span></span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="org-tree-2col">
+            <div className="org-tree-col">
+              <div className="org-tree-col-head">
+                <h4>본사</h4>
+                <small>{officeOrgs.length}개 본부</small>
+              </div>
+              <div className="org-tree-col-body">
+                {officeOrgs.map(hq => (
+                  <OrgNode key={hq.name} node={hq} depth={0} max={hqMax} openMap={officeOpen} setOpenMap={setOfficeOpen} />
+                ))}
+              </div>
+            </div>
+            <div className="org-tree-col">
+              <div className="org-tree-col-head">
+                <h4>현장</h4>
+                <small>{fieldOrgs.length}개 사업본부</small>
+              </div>
+              <div className="org-tree-col-body">
+                {fieldOrgs.map(hq => (
+                  <OrgNode key={hq.name} node={hq} depth={0} max={hqMax} openMap={fieldOpen} setOpenMap={setFieldOpen} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {selectedEmployee && <EmployeeDetailModal pid={selectedEmployee} onClose={() => setSelectedEmployee(null)} />}
+    </div>
+  );
+}
+
+// ========== Employee Detail Modal ==========
+function EmployeeDetailModal({ pid, onClose }) {
+  const p = window.HELPERS.personById(pid);
+  const pts = window.MOCK.pointsByPerson[pid] || { mission: 0, streak: 0, keyword: 0, total: 0 };
+  const det = window.MOCK.pointDetails[pid] || { missionLog: [], streakLog: [], keywordLog: [], currentStreak: 0 };
+
+  const kwFreq = {};
+  det.keywordLog.forEach(k => { kwFreq[k.kw] = (kwFreq[k.kw] || 0) + 1; });
+  const kwArr = Object.entries(kwFreq).sort((a, b) => b[1] - a[1]);
+
+  useEffect_t(() => {
+    const h = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  }, []);
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div className="modal-person">
+            <Avatar name={p.name} size={48} />
+            <div>
+              <div className="mp-name">{p.name} <span style={{fontSize: 13, color: 'var(--muted)', fontWeight: 500, marginLeft: 6}}>{p.title}</span></div>
+              <div className="mp-meta">{p.dept1} · {p.dept2} · {p.team}{p.role ? ` · ${p.role}` : ''}</div>
+            </div>
+          </div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div className="detail-kpi">
+            <StatTile label="총 누적" value={pts.total.toLocaleString()} sub="P" />
+            <StatTile label="미션" value={pts.mission.toLocaleString()} sub={`${det.missionLog.length}건 적립`} />
+            <StatTile label="연속참여" value={pts.streak.toLocaleString()} sub={`현재 ${det.currentStreak}일 연속`} />
+            <StatTile label="키워드 입력" value={pts.keyword.toLocaleString()} sub={`${det.keywordLog.length}회`} />
+          </div>
+
+          <div className="detail-section">
+            <h4>미션 적립 내역 <small>{det.missionLog.length}건</small></h4>
+            <div className="log-list">
+              {det.missionLog.map((m, i) => (
+                <div key={i} className="log-row">
+                  <span className="log-date">{m.date}</span>
+                  <span className="log-text">{m.nm}</span>
+                  <span className="log-pt">+{m.pt}P</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <h4>연속참여 적립 내역 <small>총 {det.streakLog.length}일</small></h4>
+            <div className="streak-grid">
+              {det.streakLog.slice().reverse().map((s, i) => (
+                <div key={i} className={"streak-cell done " + (s.pt >= 20 ? "bonus" : "")} title={`${s.date} +${s.pt}P`}>{s.day}</div>
+              ))}
+            </div>
+            <div style={{marginTop: 10, fontSize: 11.5, color: 'var(--muted)'}}>
+              기본 +3P · 3일마다 +8P · 7일마다 +20P (테두리 = 보너스 적립일)
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <h4>키워드 입력 내역 <small>{det.keywordLog.length}회 · {kwArr.length}개 키워드</small></h4>
+            <div className="keyword-cloud">
+              {kwArr.map(([kw, n]) => (<span key={kw} className="keyword-chip">{kw}<b>×{n}</b></span>))}
+            </div>
+            <div className="log-list">
+              {det.keywordLog.slice(0, 12).map((k, i) => (
+                <div key={i} className="log-row">
+                  <span className="log-date">{k.date}</span>
+                  <span className="log-text">키워드 · <b>{k.kw}</b></span>
+                  <span className="log-pt">+{k.pt}P</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========== TALK ==========
+function TalkTab({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const talks = window.MOCK.talks.filter(t => teamSet.has(t.team));
+
+  const [view, setView] = useState_t("leader"); // leader | ours
+
+  const leaders = talks.filter(t => t.kind === "리더");
+  const action1 = talks.filter(t => t.kind === "우리" && t.action === 1).sort((a, b) => b.likes - a.likes);
+  const action2 = talks.filter(t => t.kind === "우리" && t.action === 2).sort((a, b) => b.likes - a.likes);
+
+  return (
+    <div className="talk-grid">
+      <Card title="Talk 메시지" action={
+        <div className="seg">
+          <button className={"seg-btn " + (view === "leader" ? "active" : "")} onClick={() => setView("leader")}>
+            리더 메시지 <span style={{opacity:0.7, marginLeft:4}}>{leaders.length}</span>
+          </button>
+          <button className={"seg-btn " + (view === "ours" ? "active" : "")} onClick={() => setView("ours")}>
+            우리 메시지 <span style={{opacity:0.7, marginLeft:4}}>{action1.length + action2.length}</span>
+          </button>
+        </div>
+      }>
+        {view === "leader" ? (
+          leaders.length === 0 ? <EmptyState>해당 범위의 리더 메시지가 없습니다.</EmptyState> : (
+            <div className="talk-list">
+              {leaders.map(t => {
+                const author = window.HELPERS.personById(t.author);
+                return (
+                  <article key={t.id} className="talk-item">
+                    <div className="talk-meta">
+                      <Pill>리더 메시지</Pill>
+                      <span className="talk-team">{t.team}</span>
+                      <span className="talk-date">{t.date}</span>
+                    </div>
+                    <div className="talk-author">
+                      <Avatar name={author.name} size={36} />
+                      <div>
+                        <div className="ta-name">{author.name} <span className="ta-title">{author.title}</span></div>
+                        <div className="ta-team">{author.team}</div>
+                      </div>
+                    </div>
+                    {t.title && <h3 className="talk-title">{t.title}</h3>}
+                    <p className="talk-body">{t.body}</p>
+                    <div className="talk-foot">
+                      <span>❤ <b>{t.likes}</b></span>
+                      <span>💬 <b>{t.comments.length}</b></span>
+                    </div>
+                    {t.comments.length > 0 && (
+                      <div className="talk-comments">
+                        {t.comments.map((c, i) => (
+                          <div key={i} className="talk-comment">{c.body}</div>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )
+        ) : (
+          <>
+            <div className="action-section">
+              <div className="action-section-head">
+                <h4>행동 지향점 1</h4>
+                <span className="badge">{action1.length}건</span>
+              </div>
+              <div className="action-section-body">
+                {action1.length === 0 ? <EmptyState>아직 메시지가 없습니다.</EmptyState> : action1.map(t => (
+                  <div key={t.id}>
+                    <div className="anon-msg">{t.body}</div>
+                    <div className="anon-meta">
+                      <span>{t.team}</span>
+                      <span>{t.date}</span>
+                      <span>❤ <b>{t.likes}</b></span>
+                    </div>
+                    <div style={{height: 12}} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="action-section">
+              <div className="action-section-head">
+                <h4>행동 지향점 2</h4>
+                <span className="badge">{action2.length}건</span>
+              </div>
+              <div className="action-section-body">
+                {action2.length === 0 ? <EmptyState>아직 메시지가 없습니다.</EmptyState> : action2.map(t => (
+                  <div key={t.id}>
+                    <div className="anon-msg">{t.body}</div>
+                    <div className="anon-meta">
+                      <span>{t.team}</span>
+                      <span>{t.date}</span>
+                      <span>❤ <b>{t.likes}</b></span>
+                    </div>
+                    <div style={{height: 12}} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ========== PLAY ==========
+function PlayTab({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const peopleInScope = window.MOCK.people.filter(p => teamSet.has(p.team));
+  const idSet = new Set(peopleInScope.map(p => p.id));
+  const scoped = window.MOCK.stickers.filter(s => idSet.has(s.to));
+
+  // 팀별
+  const byTeam = {};
+  scoped.forEach(s => {
+    const to = window.HELPERS.personById(s.to);
+    if (!byTeam[to.team]) byTeam[to.team] = { team: to.team, count: 0, byType: {} };
+    byTeam[to.team].count++;
+    byTeam[to.team].byType[s.type] = (byTeam[to.team].byType[s.type] || 0) + 1;
+  });
+  const teamArr = Object.values(byTeam).sort((a, b) => b.count - a.count);
+  const maxTeam = Math.max(...teamArr.map(t => t.count), 1);
+
+  // 개인별: 팀별 그룹핑 + 각 팀 안에서 정렬
+  const personByTeam = {};
+  scoped.forEach(s => {
+    const p = window.HELPERS.personById(s.to);
+    if (!personByTeam[p.team]) personByTeam[p.team] = {};
+    if (!personByTeam[p.team][s.to]) personByTeam[p.team][s.to] = { id: s.to, count: 0, byType: {} };
+    personByTeam[p.team][s.to].count++;
+    personByTeam[p.team][s.to].byType[s.type] = (personByTeam[p.team][s.to].byType[s.type] || 0) + 1;
+  });
+  // 팀별로 정렬된 그룹 배열로 변환
+  const personGroups = Object.entries(personByTeam)
+    .map(([team, members]) => {
+      const arr = Object.values(members).sort((a, b) => b.count - a.count);
+      const teamTotal = arr.reduce((s, m) => s + m.count, 0);
+      return { team, members: arr, total: teamTotal };
+    })
+    .sort((a, b) => b.total - a.total);
+
+  // 팀 필터 (개인별 랭킹용)
+  const [selTeam, setSelTeam] = useState_t("__all");
+  const teamOptions = ["__all", ...personGroups.map(g => g.team)];
+
+  const filteredGroups = selTeam === "__all" ? personGroups : personGroups.filter(g => g.team === selTeam);
+  const overallMaxPerson = Math.max(
+    ...personGroups.flatMap(g => g.members.map(m => m.count)),
+    1
+  );
+
+  return (
+    <div className="play-grid">
+      <Card title="팀·현장별 스티커 수령 현황">
+        <div className="team-stickers">
+          {teamArr.map(t => (
+            <div key={t.team} className="ts-row">
+              <div className="ts-team">{t.team}</div>
+              <div className="ts-bar"><Bar value={t.count} max={maxTeam} height={10} /></div>
+              <div className="ts-count">{t.count}<span>개</span></div>
+              <div className="ts-breakdown">
+                {window.MOCK.stickerTypes.map(st => t.byType[st.key] ? (
+                  <span key={st.key} className="ts-chip" title={st.nm}>{st.emoji} {t.byType[st.key]}</span>
+                ) : null)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="개인별 받은 스티커 랭킹" action={
+        <select
+          value={selTeam}
+          onChange={(e) => setSelTeam(e.target.value)}
+          style={{
+            appearance: 'none',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--r-sm)',
+            padding: '6px 28px 6px 12px',
+            fontSize: 12.5,
+            color: 'var(--text)',
+            backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%236B7280' d='M2 4l4 4 4-4'/></svg>\")",
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 8px center',
+          }}
+        >
+          <option value="__all">전체 팀/현장</option>
+          {personGroups.map(g => <option key={g.team} value={g.team}>{g.team}</option>)}
+        </select>
+      }>
+        {filteredGroups.length === 0 ? <EmptyState>해당 범위에 스티커 데이터가 없습니다.</EmptyState> : (
+          filteredGroups.map(g => (
+            <div key={g.team} className="person-team-group">
+              <div className="person-team-head">
+                <h4>{g.team}</h4>
+                <span>{g.members.length}명 · 총 {g.total}개</span>
+              </div>
+              <div className="team-stickers">
+                {g.members.slice(0, 10).map((row, i) => {
+                  const p = window.HELPERS.personById(row.id);
+                  return (
+                    <div key={row.id} className="person-sticker-row">
+                      <span className="rank-pos">{renderRank(i)}</span>
+                      <Avatar name={p.name} size={28} />
+                      <div>
+                        <div className="rank-name">{p.name} <span className="rank-title">{p.title}</span></div>
+                        <div className="rank-team">{p.team}</div>
+                      </div>
+                      <div className="rank-bar"><Bar value={row.count} max={overallMaxPerson} /></div>
+                      <div className="ps-count">{row.count}<span>개</span></div>
+                      <div className="sticker-mix">
+                        {window.MOCK.stickerTypes.map(st => row.byType[st.key] ? (
+                          <span key={st.key} className="sticker-pill" title={st.nm}>{st.emoji}<b>{row.byType[st.key]}</b></span>
+                        ) : null)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ========== RULE ==========
+function RuleTab({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const teamsWithRules = Object.keys(window.MOCK.ruleByTeam).filter(t => teamSet.has(t));
+
+  if (teamsWithRules.length === 0) {
+    return <EmptyState>선택한 범위에 그라운드룰 데이터가 없습니다.</EmptyState>;
+  }
+
+  return (
+    <div className="rule-grid">
+      {teamsWithRules.map(team => (
+        <RuleTeamBlock key={team} team={team} data={window.MOCK.ruleByTeam[team]} />
+      ))}
+    </div>
+  );
+}
+
+function RuleTeamBlock({ team, data }) {
+  const sortedCands = [...data.candidates].sort((a, b) => b.sympathy - a.sympathy);
+  const [activeCand, setActiveCand] = useState_t(sortedCands[0].id);
+
+  const cand = sortedCands.find(c => c.id === activeCand) || sortedCands[0];
+  const sortedActions = [...cand.actions].sort((a, b) => b.sympathy - a.sympathy);
+
+  const finalCand = data.finalCandidate ? sortedCands.find(c => c.id === data.finalCandidate) : null;
+  const finalAction = finalCand ? finalCand.actions[data.finalAction] : null;
+  const finalLeader = data.decidedBy ? window.HELPERS.personById(data.decidedBy) : null;
+
+  return (
+    <div className="rule-team-block" id={"rule-team-" + team}>
+      <div className="rule-team-head">
+        <h3>{team}</h3>
+        <span className="meta">
+          후보 {sortedCands.length}개 · 실천방식 {sortedCands.reduce((a, c) => a + c.actions.length, 0)}건
+          {finalCand && <> · <b style={{color:'var(--accent)', marginLeft: 4}}>최종 확정</b> {data.finalDate}</>}
+        </span>
+      </div>
+      <div className="rule-team-body">
+        <div className="rule-step-label">STEP 01</div>
+        <div className="rule-step-head">
+          <h4>그라운드룰 후보</h4>
+          <p>구성원의 메시지 중 공감(♥)을 가장 많이 받은 상위 3개입니다.</p>
+        </div>
+        <div className="candidates-row">
+          {sortedCands.slice(0, 3).map((c, i) => {
+            const author = window.HELPERS.personById(c.author);
+            const isFinal = data.finalCandidate === c.id;
+            return (
+              <div
+                key={c.id}
+                className={"candidate-card " + (activeCand === c.id ? "active " : "") + (isFinal ? "final" : "")}
+                onClick={() => setActiveCand(c.id)}
+              >
+                {isFinal && <div className="cand-final-tag">최종 선택</div>}
+                <div className="cand-top">
+                  <span className="cand-label">후보 {i + 1}</span>
+                  <span className="cand-likes">♥ {c.sympathy}</span>
+                </div>
+                <div className="cand-date">{c.date}</div>
+                <div className="cand-body">{c.body}</div>
+                <div className="cand-author">— {author.name} {author.title}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="rule-step-label">STEP 02</div>
+        <div className="rule-step-head">
+          <h4>실천 방식 — {cand.body.length > 40 ? cand.body.slice(0, 40) + '…' : cand.body}</h4>
+          <p>선택한 후보에 대해 구성원들이 작성한 상세 실천방식 ({cand.actions.length}건) · 공감순 정렬</p>
+        </div>
+        <div className="action-list">
+          {sortedActions.map((a, i) => {
+            const author = window.HELPERS.personById(a.author);
+            const isFinal = finalAction && a.body === finalAction.body;
+            return (
+              <div key={i} className={"action-item " + (isFinal ? "final" : "")}>
+                <div className="ai-top">
+                  <span className="ai-rank">
+                    {isFinal && <span style={{background:'var(--accent)', color:'white', padding:'2px 8px', borderRadius:999, fontSize:10, fontWeight:700, marginRight:8}}>최종 선정</span>}
+                    공감 랭킹 #{i + 1}
+                  </span>
+                  <span className="ai-likes">♥ {a.sympathy}</span>
+                </div>
+                <div className="ai-body">{a.body}</div>
+                <div className="ai-foot">
+                  <span className="ai-tag">실천 빈도 · {a.freq}</span>
+                  <span className="ai-tag">실천 기간 · {a.dur}</span>
+                  <span style={{marginLeft:'auto', fontSize: 11.5, color: 'var(--muted)'}}>— {author.name} {author.title} <span style={{opacity: 0.6}}>(익명)</span></span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {finalCand && finalAction && (
+          <div className="final-summary">
+            <h4>STEP 03 · 조직장 최종 선택 그라운드룰</h4>
+            <div className="final-summary-card">
+              <div className="fs-rule">{finalCand.body}</div>
+              <div className="fs-action">실천 방식: {finalAction.body}</div>
+              <div className="fs-foot">
+                <span>실천 빈도 · <b>{finalAction.freq}</b></span>
+                <span>실천 기간 · <b>{finalAction.dur}</b></span>
+                {finalLeader && <span style={{marginLeft:'auto'}}>선정 · <b>{finalLeader.name} {finalLeader.title}</b> · {data.finalDate}</span>}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ========== GALLERY ==========
+function GalleryTab({ filter }) {
+  const teams = window.HELPERS.teamsInScope(filter).map(t => t.팀);
+  const teamSet = new Set(teams);
+  const photos = window.MOCK.gallery.filter(g => teamSet.has(g.team));
+
+  const [selected, setSelected] = useState_t(new Set());
+  const [groupBy, setGroupBy] = useState_t("team");
+
+  const toggle = (id) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelected(next);
+  };
+  const toggleAll = () => {
+    if (selected.size === photos.length) setSelected(new Set());
+    else setSelected(new Set(photos.map(p => p.id)));
+  };
+
+  const groups = {};
+  photos.forEach(p => {
+    const key = groupBy === "team" ? p.team : p.date;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p);
+  });
+
+  const onDownload = () => {
+    if (selected.size === 0) { alert("다운로드할 사진을 선택해주세요."); return; }
+    alert(`${selected.size}장의 사진을 다운로드합니다.\n(실제 환경에서는 ZIP으로 일괄 다운로드)`);
+  };
+
+  return (
+    <div className="gallery-wrap">
+      <Card title="인증갤러리" action={
+        <div className="gallery-actions">
+          <div className="seg">
+            {[["team", "팀별"], ["date", "날짜별"]].map(([k, l]) => (
+              <button key={k} className={"seg-btn " + (groupBy === k ? "active" : "")} onClick={() => setGroupBy(k)}>{l}</button>
+            ))}
+          </div>
+          <button className="btn-secondary" onClick={toggleAll}>{selected.size === photos.length ? "전체 해제" : "전체 선택"}</button>
+          <button className="btn-primary" onClick={onDownload}>⬇ 선택 {selected.size}장 다운로드</button>
+        </div>
+      }>
+        {photos.length === 0 ? <EmptyState>선택한 범위에 인증 사진이 없습니다.</EmptyState> : Object.entries(groups).map(([key, items]) => (
+          <div key={key} className="gallery-group">
+            <div className="gg-head"><h4>{key}</h4><span>{items.length}장</span></div>
+            <div className="gallery-grid">
+              {items.map(g => {
+                const author = window.HELPERS.personById(g.author);
+                const checked = selected.has(g.id);
+                return (
+                  <div key={g.id} className={"gallery-item " + (checked ? "checked" : "")} onClick={() => toggle(g.id)}>
+                    <div className="gi-thumb">
+                      <div className="gi-check">
+                        <input type="checkbox" checked={checked} onChange={() => toggle(g.id)} onClick={(e) => e.stopPropagation()} />
+                      </div>
+                      <div className="gi-mock"><span>📸 인증 사진</span><small>{g.caption}</small></div>
+                    </div>
+                    <div className="gi-meta">
+                      <div className="gi-team">{g.team}</div>
+                      <div className="gi-rule">"{g.rule}"</div>
+                      <div className="gi-foot">
+                        <span><Avatar name={author.name} size={16} /> {author.name}</span>
+                        <span>{g.date}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+Object.assign(window, { DashboardTab, TalkTab, PlayTab, RuleTab, GalleryTab, EmployeeDetailModal });
+
+</script>
+
+<script type="text/babel" data-presets="react">
+
+// hi-5 관리자 - Main App (Tweaks-free, integrated)
+const { useState: useStateA, useEffect: useEffectA } = React;
+
+const TABS = [
+  { key: "dashboard", label: "포인트 대시보드", icon: "🏆" },
+  { key: "talk", label: "Talk", icon: "💬" },
+  { key: "play", label: "Play", icon: "🎁" },
+  { key: "rule", label: "Rule", icon: "📜" },
+  { key: "gallery", label: "인증갤러리", icon: "🖼" },
+];
+
+function App() {
+  const [filter, setFilter] = useStateA({ 본부: "", 실: "", 팀: "" });
+  const [role, setRole] = useStateA("ops");
+  const [tab, setTab] = useStateA("dashboard");
+
+  // 권한이 바뀌면 필터 강제 적용
+  useEffectA(() => {
+    const r = window.MOCK.roles.find(x => x.key === role);
+    if (!r) return;
+    if (r.scope === "all") return;
+    if (r.scope === "본부") setFilter({ 본부: r.target, 실: "", 팀: "" });
+    if (r.scope === "실") setFilter({ 본부: r.parent, 실: r.target, 팀: "" });
+    if (r.scope === "팀") {
+      let found = window.HELPERS.teamsInScope({}).find(x => x.팀 === r.target);
+      if (found) setFilter({ 본부: found.본부, 실: found.실, 팀: r.target });
+    }
+  }, [role]);
+
+  // density 기본값 적용
+  useEffectA(() => {
+    document.documentElement.dataset.density = "comfortable";
+  }, []);
+
+  const renderSidebar = () => {
+    switch (tab) {
+      case "dashboard": return <DashboardSidebar filter={filter} setFilter={setFilter} />;
+      case "talk": return <TalkSidebar filter={filter} setFilter={setFilter} />;
+      case "play": return <PlaySidebar filter={filter} setFilter={setFilter} />;
+      case "rule": return <RuleSidebar filter={filter} />;
+      case "gallery": return <GallerySidebar filter={filter} />;
+      default: return null;
+    }
+  };
+
+  const renderContent = () => {
+    switch (tab) {
+      case "dashboard": return <DashboardTab filter={filter} />;
+      case "talk": return <TalkTab filter={filter} />;
+      case "play": return <PlayTab filter={filter} />;
+      case "rule": return <RuleTab filter={filter} />;
+      case "gallery": return <GalleryTab filter={filter} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="app nav-top">
+      <AdminHeader filter={filter} setFilter={setFilter} role={role} setRole={setRole} />
+      <TopTabs tab={tab} setTab={setTab} tabs={TABS} />
+      <div className="app-body">
+        {renderSidebar()}
+        <main className="app-main">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>
